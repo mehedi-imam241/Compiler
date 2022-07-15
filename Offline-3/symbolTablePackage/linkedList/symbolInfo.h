@@ -4,10 +4,14 @@ using namespace std;
 #ifndef SYMBOLINFO_H_
 #define SYMBOLINFO_H_
 
+
+FILE* logout;
+FILE* tokenout;
+
 class symbolINfo
 {
 private:
-    string name, type;
+    string name, type,retType,variableType;
 
 public:
     symbolINfo *next;
@@ -26,6 +30,14 @@ public:
     {
         return type;
     }
+    string getVariableType()
+    {
+        return variableType;
+    }
+    string getReturnType()
+    {
+        return retType;
+    }
 
     void setName(string name)
     {
@@ -35,10 +47,14 @@ public:
     {
         this->type = type;
     }
-    // ~Node()
-    // {
-    //     delete next;
-    // }
+    void setVariableType(string varType)
+    {
+        this->variableType = varType;
+    }
+    void setReturnType(string retType)
+    {
+        this->retType = retType;
+    }
 };
 
 #endif // !LINKEDLIST_H_

@@ -2,7 +2,7 @@
 #include "globals.h"
 using namespace std;
 
-int hashFunction(string str)
+unsigned int hashFunction(string str)
 {
     unsigned int hash = 0;
     int c;
@@ -14,3 +14,4 @@ int hashFunction(string str)
 
     return hash % totalBuckets;
 }
+

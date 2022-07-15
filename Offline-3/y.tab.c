@@ -68,11 +68,6 @@
 /* First part of user prologue.  */
 #line 1 "parser.y"
 
-#include<iostream>
-#include<cstdlib>
-#include<cstring>
-#include<cmath>
-#include<vector>
 #include "symbolTablePackage/globals.h"
 #include "symbolTablePackage/symbolTable.cpp"
 using namespace std;
@@ -96,7 +91,7 @@ void yyerror(char *s)
 
 
 
-#line 100 "y.tab.c"
+#line 95 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -234,11 +229,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 32 "parser.y"
+#line 27 "parser.y"
 
 	symbolINfo *smbl;
 
-#line 242 "y.tab.c"
+#line 237 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -564,7 +559,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  26
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  66
+#define YYNRULES  65
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  118
 
@@ -617,13 +612,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    57,    57,    68,    77,    88,    97,   106,   117,   141,
-     166,   166,   202,   202,   228,   244,   255,   267,   280,   289,
-     300,   311,   323,   336,   351,   382,   415,   448,   486,   495,
-     505,   514,   523,   532,   543,   554,   565,   576,   580,   591,
-     600,   611,   626,   646,   657,   698,   709,   722,   733,   746,
-     757,   778,   789,   810,   821,   832,   845,   856,   868,   879,
-     890,   901,   912,   925,   934,   937,   946
+       0,    52,    52,    63,    72,    83,    92,   101,   112,   136,
+     161,   161,   197,   197,   223,   239,   250,   262,   275,   284,
+     295,   306,   318,   331,   346,   377,   410,   443,   481,   490,
+     500,   509,   518,   527,   538,   560,   571,   575,   586,   595,
+     606,   621,   641,   652,   693,   704,   717,   728,   741,   752,
+     773,   784,   805,   816,   827,   840,   851,   863,   874,   885,
+     896,   907,   920,   929,   932,   941
 };
 #endif
 
@@ -669,7 +664,7 @@ static const yytype_int16 yytoknum[] =
 #define YYTABLE_NINF (-1)
 
 #define yytable_value_is_error(Yyn) \
-  ((Yyn) == YYTABLE_NINF)
+  0
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
@@ -686,7 +681,7 @@ static const yytype_int16 yypact[] =
      -63,   -63,   -63,    91,   -63,    91,    91,    91,    91,   119,
      121,    88,   122,   -63,   -63,   -63,   123,   120,   124,   -63,
      -63,   106,   126,   -63,   127,    77,    91,    77,   -63,    91,
-     -63,   -63,   144,   129,   -63,   -63,    77,   -63
+     -63,   -63,   -63,   129,   -63,   -63,    77,   -63
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -698,22 +693,22 @@ static const yytype_int8 yydefact[] =
        0,     1,     3,    26,     0,     0,     0,     0,    20,    12,
        0,    17,     0,    24,     9,     0,    10,     0,    16,    27,
        0,     0,    13,     8,     0,    15,     0,     0,     0,     0,
-       0,     0,     0,     0,    19,    39,     0,    59,    60,    41,
-      32,    30,     0,     0,    28,    31,    56,     0,    43,    45,
-      47,    49,    51,    55,    11,    14,    25,     0,     0,     0,
-       0,     0,    56,    54,     0,    53,    64,     0,    26,    18,
-      29,    61,    62,     0,    40,     0,     0,     0,     0,     0,
-       0,     0,     0,    38,    58,    66,     0,    63,     0,    44,
-      46,    50,    48,    52,     0,     0,     0,     0,    57,     0,
-      42,    37,    34,     0,    36,    65,     0,    33
+       0,     0,     0,     0,    19,    38,     0,    58,    59,    40,
+      32,    30,     0,     0,    28,    31,    55,     0,    42,    44,
+      46,    48,    50,    54,    11,    14,    25,     0,     0,     0,
+       0,     0,    55,    53,     0,    52,    63,     0,    26,    18,
+      29,    60,    61,     0,    39,     0,     0,     0,     0,     0,
+       0,     0,     0,    37,    57,    65,     0,    62,     0,    43,
+      45,    49,    47,    51,     0,     0,     0,     0,    56,     0,
+      41,    36,    34,     0,    35,    64,     0,    33
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -63,   -63,   -63,   146,   -63,   -63,   -63,   -63,   -63,   -14,
-      53,    57,   -63,   -63,   -51,   -53,   -42,   -40,   -62,    71,
-      68,    66,   -37,   -63,   -63,   -63
+     -63,   -63,   -63,   144,   -63,   -63,   -63,   -63,   -63,   -14,
+      53,    57,   -63,   -63,   -51,   -53,   -42,   -40,   -62,    66,
+      68,    71,   -37,   -63,   -63,   -63
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -743,8 +738,8 @@ static const yytype_int8 yytable[] =
       46,    42,    43,    69,    42,    43,    47,    48,    49,    45,
       70,    46,    81,    82,    46,    78,    84,    47,    48,    49,
       47,    48,    49,     1,     2,     3,    81,    82,    83,    85,
-      88,    89,    93,    94,   104,    16,   105,   107,   108,    -1,
-     109,    12,   101,   110,   116,   102,   100,     0,   111,    86
+      88,    89,    93,    94,   104,    16,   105,   107,   108,    12,
+     109,   100,     0,   110,   116,   102,     0,   101,   111,    86
 };
 
 static const yytype_int8 yycheck[] =
@@ -764,7 +759,7 @@ static const yytype_int8 yycheck[] =
       24,    33,    20,    21,    33,    41,    31,    39,    40,    41,
       39,    40,    41,     8,     9,    10,    20,    21,    22,    36,
       34,    41,    31,    25,    25,    28,    25,    25,    25,     5,
-      30,     5,    86,    29,    25,    87,    85,    -1,    31,    33
+      30,    85,    -1,    29,    25,    87,    -1,    86,    31,    33
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -791,10 +786,10 @@ static const yytype_int8 yyr1[] =
        0,    44,    45,    46,    46,    47,    47,    47,    48,    48,
       50,    49,    51,    49,    52,    52,    52,    52,    53,    53,
       54,    55,    55,    55,    56,    56,    56,    56,    57,    57,
-      58,    58,    58,    58,    58,    58,    58,    58,    58,    59,
-      59,    60,    60,    61,    61,    62,    62,    63,    63,    64,
-      64,    65,    65,    66,    66,    66,    67,    67,    67,    67,
-      67,    67,    67,    68,    68,    69,    69
+      58,    58,    58,    58,    58,    58,    58,    58,    59,    59,
+      60,    60,    61,    61,    62,    62,    63,    63,    64,    64,
+      65,    65,    66,    66,    66,    67,    67,    67,    67,    67,
+      67,    67,    68,    68,    69,    69
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -803,10 +798,10 @@ static const yytype_int8 yyr2[] =
        0,     2,     1,     2,     1,     1,     1,     1,     6,     5,
        0,     7,     0,     6,     4,     3,     2,     1,     3,     2,
        3,     1,     1,     1,     3,     6,     1,     4,     1,     2,
-       1,     1,     1,     7,     5,     7,     5,     5,     3,     1,
-       2,     1,     4,     1,     3,     1,     3,     1,     3,     1,
-       3,     1,     3,     2,     2,     1,     1,     4,     3,     1,
-       1,     2,     2,     1,     0,     3,     1
+       1,     1,     1,     7,     5,     5,     5,     3,     1,     2,
+       1,     4,     1,     3,     1,     3,     1,     3,     1,     3,
+       1,     3,     2,     2,     1,     1,     4,     3,     1,     1,
+       2,     2,     1,     0,     3,     1
 };
 
 
@@ -1502,7 +1497,7 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 58 "parser.y"
+#line 53 "parser.y"
         {
 		fprintf(logout,"line no. %d: start : program\n\n",line_count);
 
@@ -1511,11 +1506,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
 	}
-#line 1515 "y.tab.c"
+#line 1510 "y.tab.c"
     break;
 
   case 3:
-#line 69 "parser.y"
+#line 64 "parser.y"
         {
 		fprintf(logout,"line no. %d: program : program unit\n\n",line_count);
 
@@ -1524,11 +1519,11 @@ yyreduce:
 
 		(yyval.smbl)=(yyvsp[-1].smbl);
 	}
-#line 1528 "y.tab.c"
+#line 1523 "y.tab.c"
     break;
 
   case 4:
-#line 78 "parser.y"
+#line 73 "parser.y"
         {
 		fprintf(logout,"line no. %d: program : unit\n\n",line_count);
 
@@ -1537,11 +1532,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
 	}
-#line 1541 "y.tab.c"
+#line 1536 "y.tab.c"
     break;
 
   case 5:
-#line 89 "parser.y"
+#line 84 "parser.y"
         {
 		fprintf(logout,"line no. %d: unit: var_declaration\n\n",line_count);
 
@@ -1550,11 +1545,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
 	}
-#line 1554 "y.tab.c"
+#line 1549 "y.tab.c"
     break;
 
   case 6:
-#line 98 "parser.y"
+#line 93 "parser.y"
     {
      	fprintf(logout,"line no. %d: unit: func_declaration\n\n",line_count);
 
@@ -1563,11 +1558,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
     }
-#line 1567 "y.tab.c"
+#line 1562 "y.tab.c"
     break;
 
   case 7:
-#line 107 "parser.y"
+#line 102 "parser.y"
     {
      	fprintf(logout,"line no. %d: unit: func_definition\n\n",line_count);
 
@@ -1576,11 +1571,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
     }
-#line 1580 "y.tab.c"
+#line 1575 "y.tab.c"
     break;
 
   case 8:
-#line 118 "parser.y"
+#line 113 "parser.y"
         {
 		fprintf(logout,"line no. %d: func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON\n\n",line_count);
 		
@@ -1604,11 +1599,11 @@ yyreduce:
 
 		//table.printCur(logout);
 	}
-#line 1608 "y.tab.c"
+#line 1603 "y.tab.c"
     break;
 
   case 9:
-#line 142 "parser.y"
+#line 137 "parser.y"
         {
 			fprintf(logout, "Line no. %d: func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON\n\n", line_count);
 			
@@ -1631,17 +1626,17 @@ yyreduce:
 			
 
 	}
-#line 1635 "y.tab.c"
+#line 1630 "y.tab.c"
     break;
 
   case 10:
-#line 166 "parser.y"
+#line 161 "parser.y"
                                                                  {table.enterScope();}
-#line 1641 "y.tab.c"
+#line 1636 "y.tab.c"
     break;
 
   case 11:
-#line 167 "parser.y"
+#line 162 "parser.y"
         {
 		// fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement \n\n",line_count);
 
@@ -1677,17 +1672,17 @@ yyreduce:
 
 		// table.printAll(logout);
 	}
-#line 1681 "y.tab.c"
+#line 1676 "y.tab.c"
     break;
 
   case 12:
-#line 202 "parser.y"
+#line 197 "parser.y"
                                           {table.enterScope();}
-#line 1687 "y.tab.c"
+#line 1682 "y.tab.c"
     break;
 
   case 13:
-#line 203 "parser.y"
+#line 198 "parser.y"
         {
 		// fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN RPAREN compound_statement\n\n",line_count);
 	
@@ -1710,11 +1705,11 @@ yyreduce:
 		// table.removeScope();
 		// table.printAll(logout);
 	}
-#line 1714 "y.tab.c"
+#line 1709 "y.tab.c"
     break;
 
   case 14:
-#line 229 "parser.y"
+#line 224 "parser.y"
         {
 		// fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier ID\n\n",line_count);
 
@@ -1730,11 +1725,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1734 "y.tab.c"
+#line 1729 "y.tab.c"
     break;
 
   case 15:
-#line 245 "parser.y"
+#line 240 "parser.y"
         {
 		// fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier\n\n",line_count);
 	
@@ -1745,11 +1740,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1749 "y.tab.c"
+#line 1744 "y.tab.c"
     break;
 
   case 16:
-#line 256 "parser.y"
+#line 251 "parser.y"
         {
 		// fprintf(logout,"line no. %d: parameter_list : type_specifier ID\n\n",line_count);
 
@@ -1761,11 +1756,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1765 "y.tab.c"
+#line 1760 "y.tab.c"
     break;
 
   case 17:
-#line 268 "parser.y"
+#line 263 "parser.y"
         {
 		// fprintf(logout,"line no. %d: parameter_list : type_specifier\n\n",line_count);
 
@@ -1775,11 +1770,11 @@ yyreduce:
 		// //$1->varType = variableType;
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1779 "y.tab.c"
+#line 1774 "y.tab.c"
     break;
 
   case 18:
-#line 281 "parser.y"
+#line 276 "parser.y"
         {
 		// fprintf(logout,"line no. %d: compound_statement : LCURL statements RCURL\n\n",line_count);
 
@@ -1788,11 +1783,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1792 "y.tab.c"
+#line 1787 "y.tab.c"
     break;
 
   case 19:
-#line 290 "parser.y"
+#line 285 "parser.y"
         {
 		// fprintf(logout,"line no. %d: compound_statement : LCURL RCURL\n\n",line_count);
 
@@ -1801,11 +1796,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1805 "y.tab.c"
+#line 1800 "y.tab.c"
     break;
 
   case 20:
-#line 301 "parser.y"
+#line 296 "parser.y"
         {
 		// fprintf(logout,"line no. %d: var_declaration : type_specifier declaration_list SEMICOLON\n\n",line_count);
 	
@@ -1814,11 +1809,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1818 "y.tab.c"
+#line 1813 "y.tab.c"
     break;
 
   case 21:
-#line 312 "parser.y"
+#line 307 "parser.y"
         {
 		fprintf(logout,"line no. %d: type_specifier : INT\n\n",line_count);
 		fprintf(logout,"int\n\n");
@@ -1830,11 +1825,11 @@ yyreduce:
 		lastDeclaredType = "int";
 
 	}
-#line 1834 "y.tab.c"
+#line 1829 "y.tab.c"
     break;
 
   case 22:
-#line 324 "parser.y"
+#line 319 "parser.y"
         {
 		// fprintf(logout,"line no. %d: type_specifier : FLOAT\n\n",line_count);
 
@@ -1847,11 +1842,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1851 "y.tab.c"
+#line 1846 "y.tab.c"
     break;
 
   case 23:
-#line 337 "parser.y"
+#line 332 "parser.y"
         {
 		// fprintf(logout,"line no. %d: type_specifier : VOID\n\n",line_count);
 
@@ -1864,11 +1859,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 1868 "y.tab.c"
+#line 1863 "y.tab.c"
     break;
 
   case 24:
-#line 352 "parser.y"
+#line 347 "parser.y"
         {
 		// fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID\n\n",line_count);
 
@@ -1899,11 +1894,11 @@ yyreduce:
 
 		//table.printCur(logout);
 	}
-#line 1903 "y.tab.c"
+#line 1898 "y.tab.c"
     break;
 
   case 25:
-#line 383 "parser.y"
+#line 378 "parser.y"
         {
 		// fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
 
@@ -1936,11 +1931,11 @@ yyreduce:
 		// 	fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
 		// }
 	}
-#line 1940 "y.tab.c"
+#line 1935 "y.tab.c"
     break;
 
   case 26:
-#line 416 "parser.y"
+#line 411 "parser.y"
         {
 		// fprintf(logout,"line no. %d: declaration_list : ID\n\n",line_count);
 
@@ -1973,11 +1968,11 @@ yyreduce:
 
 		//table.printCur(logout);
 	}
-#line 1977 "y.tab.c"
+#line 1972 "y.tab.c"
     break;
 
   case 27:
-#line 449 "parser.y"
+#line 444 "parser.y"
         {
 		// fprintf(logout,"line no. %d: declaration_list : ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
 
@@ -2013,11 +2008,11 @@ yyreduce:
 
 		// //table.printCur(logout);
 	}
-#line 2017 "y.tab.c"
+#line 2012 "y.tab.c"
     break;
 
   case 28:
-#line 487 "parser.y"
+#line 482 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statements : statement\n\n",line_count);
 
@@ -2026,11 +2021,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2030 "y.tab.c"
+#line 2025 "y.tab.c"
     break;
 
   case 29:
-#line 496 "parser.y"
+#line 491 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statements : statements statement\n\n",line_count);
 
@@ -2038,11 +2033,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2042 "y.tab.c"
+#line 2037 "y.tab.c"
     break;
 
   case 30:
-#line 506 "parser.y"
+#line 501 "parser.y"
         {
 		fprintf(logout,"line no. %d: statement : var_declaration\n\n",line_count);
 
@@ -2051,11 +2046,11 @@ yyreduce:
 
 		fprintf(logout, "%s\n\n", (yyval.smbl)->getName().c_str());
 	}
-#line 2055 "y.tab.c"
+#line 2050 "y.tab.c"
     break;
 
   case 31:
-#line 515 "parser.y"
+#line 510 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : expression_statement\n\n",line_count);
 
@@ -2064,11 +2059,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2068 "y.tab.c"
+#line 2063 "y.tab.c"
     break;
 
   case 32:
-#line 524 "parser.y"
+#line 519 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : compound_statement\n\n",line_count);
 
@@ -2077,11 +2072,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2081 "y.tab.c"
+#line 2076 "y.tab.c"
     break;
 
   case 33:
-#line 533 "parser.y"
+#line 528 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement\n\n",line_count);
 	
@@ -2092,11 +2087,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2096 "y.tab.c"
+#line 2091 "y.tab.c"
     break;
 
   case 34:
-#line 544 "parser.y"
+#line 539 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement\n\n",line_count);
 	
@@ -2107,26 +2102,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2111 "y.tab.c"
+#line 2106 "y.tab.c"
     break;
 
   case 35:
-#line 555 "parser.y"
-        {
-		// fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement ELSE statement\n\n",line_count);
-	
-		// string line = "if (" + $3->getName() + ") " + $5->getName() + "else " + $7->getName();
-
-		// symbolINfo *s = new symbolINfo(line, "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
-	}
-#line 2126 "y.tab.c"
-    break;
-
-  case 36:
-#line 566 "parser.y"
+#line 561 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : WHILE LPAREN expression RPAREN statement\n\n",line_count);
 	
@@ -2137,19 +2117,19 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2141 "y.tab.c"
+#line 2121 "y.tab.c"
     break;
 
-  case 37:
-#line 577 "parser.y"
+  case 36:
+#line 572 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : PRINTLN LPAREN ID RPAREN SEMICOLON\n\n",line_count);
 	}
-#line 2149 "y.tab.c"
+#line 2129 "y.tab.c"
     break;
 
-  case 38:
-#line 581 "parser.y"
+  case 37:
+#line 576 "parser.y"
         {
 		// fprintf(logout,"line no. %d: statement : RETURN expression SEMICOLON\n\n",line_count);
 	
@@ -2158,11 +2138,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2162 "y.tab.c"
+#line 2142 "y.tab.c"
     break;
 
-  case 39:
-#line 592 "parser.y"
+  case 38:
+#line 587 "parser.y"
         {
 		// fprintf(logout,"line no. %d: expression_statement : SEMICOLON\n\n",line_count);
 
@@ -2171,11 +2151,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2175 "y.tab.c"
+#line 2155 "y.tab.c"
     break;
 
-  case 40:
-#line 601 "parser.y"
+  case 39:
+#line 596 "parser.y"
         {
 		// fprintf(logout,"line no. %d: expression_statement : expression SEMICOLON\n\n",line_count);
 
@@ -2184,11 +2164,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2188 "y.tab.c"
+#line 2168 "y.tab.c"
     break;
 
-  case 41:
-#line 612 "parser.y"
+  case 40:
+#line 607 "parser.y"
         {
 		// fprintf(logout,"line no. %d: variable: ID\n\n",line_count);
 
@@ -2203,11 +2183,11 @@ yyreduce:
  
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2207 "y.tab.c"
+#line 2187 "y.tab.c"
     break;
 
-  case 42:
-#line 627 "parser.y"
+  case 41:
+#line 622 "parser.y"
         {
 		// fprintf(logout,"line no. %d: variable: ID LTHIRD expression RTHIRD\n\n",line_count);
 	
@@ -2225,11 +2205,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2229 "y.tab.c"
+#line 2209 "y.tab.c"
     break;
 
-  case 43:
-#line 647 "parser.y"
+  case 42:
+#line 642 "parser.y"
         {
 		// fprintf(logout,"line no. %d: expression : logic_expression \n\n",line_count);
 	
@@ -2240,11 +2220,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2244 "y.tab.c"
+#line 2224 "y.tab.c"
     break;
 
-  case 44:
-#line 658 "parser.y"
+  case 43:
+#line 653 "parser.y"
         {
 		// fprintf(logout,"line no. %d: expression : variable ASSIGNOP logic_expression\n\n",line_count);
 
@@ -2283,11 +2263,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2287 "y.tab.c"
+#line 2267 "y.tab.c"
     break;
 
-  case 45:
-#line 699 "parser.y"
+  case 44:
+#line 694 "parser.y"
         {
 		// fprintf(logout,"line no. %d: logic_expression : rel_expression \n\n",line_count);
 
@@ -2298,11 +2278,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2302 "y.tab.c"
+#line 2282 "y.tab.c"
     break;
 
-  case 46:
-#line 710 "parser.y"
+  case 45:
+#line 705 "parser.y"
         {
 		// fprintf(logout,"line no. %d: logic_expression : rel_expression LOGICOP rel_expression \n\n",line_count);
 		
@@ -2313,11 +2293,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2317 "y.tab.c"
+#line 2297 "y.tab.c"
     break;
 
-  case 47:
-#line 723 "parser.y"
+  case 46:
+#line 718 "parser.y"
         {
 		// fprintf(logout,"line no. %d: rel_expression : simple_expression \n\n",line_count);
 
@@ -2328,11 +2308,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2332 "y.tab.c"
+#line 2312 "y.tab.c"
     break;
 
-  case 48:
-#line 734 "parser.y"
+  case 47:
+#line 729 "parser.y"
         {
 		// fprintf(logout,"line no. %d: rel_expression : simple_expression RELOP simple_expression \n\n",line_count);
 	
@@ -2343,11 +2323,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2347 "y.tab.c"
+#line 2327 "y.tab.c"
     break;
 
-  case 49:
-#line 747 "parser.y"
+  case 48:
+#line 742 "parser.y"
         {
 		// fprintf(logout,"line no. %d: simple_expression : term \n\n",line_count);
 
@@ -2358,11 +2338,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2362 "y.tab.c"
+#line 2342 "y.tab.c"
     break;
 
-  case 50:
-#line 758 "parser.y"
+  case 49:
+#line 753 "parser.y"
         {
 		// fprintf(logout,"line no. %d: simple_expression : simple_expression ADDOP term \n\n",line_count);
 
@@ -2381,11 +2361,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2385 "y.tab.c"
+#line 2365 "y.tab.c"
     break;
 
-  case 51:
-#line 779 "parser.y"
+  case 50:
+#line 774 "parser.y"
         {
 		// fprintf(logout,"line no. %d: term : unary_expression\n\n",line_count);
 
@@ -2396,11 +2376,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2400 "y.tab.c"
+#line 2380 "y.tab.c"
     break;
 
-  case 52:
-#line 790 "parser.y"
+  case 51:
+#line 785 "parser.y"
         {
 		// fprintf(logout,"line no. %d: term : term MULOP unary_expression\n\n",line_count);
 
@@ -2419,11 +2399,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2423 "y.tab.c"
+#line 2403 "y.tab.c"
     break;
 
-  case 53:
-#line 811 "parser.y"
+  case 52:
+#line 806 "parser.y"
         {
 		// fprintf(logout,"line no. %d: unary_expression : ADDOP unary_expression\n\n",line_count);
 
@@ -2434,11 +2414,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2438 "y.tab.c"
+#line 2418 "y.tab.c"
     break;
 
-  case 54:
-#line 822 "parser.y"
+  case 53:
+#line 817 "parser.y"
         {
 		// fprintf(logout,"line no. %d: unary_expression : NOT unary_expression \n\n",line_count);
 
@@ -2449,11 +2429,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2453 "y.tab.c"
+#line 2433 "y.tab.c"
     break;
 
-  case 55:
-#line 833 "parser.y"
+  case 54:
+#line 828 "parser.y"
         {
 		// fprintf(logout,"line no. %d: unary_expression : factor \n\n",line_count);
 
@@ -2464,11 +2444,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2468 "y.tab.c"
+#line 2448 "y.tab.c"
     break;
 
-  case 56:
-#line 846 "parser.y"
+  case 55:
+#line 841 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : variable\n\n",line_count);
 
@@ -2479,11 +2459,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2483 "y.tab.c"
+#line 2463 "y.tab.c"
     break;
 
-  case 57:
-#line 857 "parser.y"
+  case 56:
+#line 852 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : ID LPAREN argument_list RPAREN\n\n",line_count);
 
@@ -2495,11 +2475,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2499 "y.tab.c"
+#line 2479 "y.tab.c"
     break;
 
-  case 58:
-#line 869 "parser.y"
+  case 57:
+#line 864 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : LPAREN expression RPAREN\n\n",line_count);
 
@@ -2510,11 +2490,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2514 "y.tab.c"
+#line 2494 "y.tab.c"
     break;
 
-  case 59:
-#line 880 "parser.y"
+  case 58:
+#line 875 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : CONST_INT\n\n",line_count);
 
@@ -2525,11 +2505,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2529 "y.tab.c"
+#line 2509 "y.tab.c"
     break;
 
-  case 60:
-#line 891 "parser.y"
+  case 59:
+#line 886 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : CONST_FLOAT \n\n",line_count);
 
@@ -2540,11 +2520,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2544 "y.tab.c"
+#line 2524 "y.tab.c"
     break;
 
-  case 61:
-#line 902 "parser.y"
+  case 60:
+#line 897 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : variable INCOP \n\n",line_count);
 
@@ -2555,11 +2535,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2559 "y.tab.c"
+#line 2539 "y.tab.c"
     break;
 
-  case 62:
-#line 913 "parser.y"
+  case 61:
+#line 908 "parser.y"
         {
 		// fprintf(logout,"line no. %d: factor : variable DECOP \n\n",line_count);
 
@@ -2570,17 +2550,17 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2574 "y.tab.c"
+#line 2554 "y.tab.c"
+    break;
+
+  case 63:
+#line 929 "parser.y"
+          { }
+#line 2560 "y.tab.c"
     break;
 
   case 64:
-#line 934 "parser.y"
-          { }
-#line 2580 "y.tab.c"
-    break;
-
-  case 65:
-#line 938 "parser.y"
+#line 933 "parser.y"
         {
 		// fprintf(logout,"line no. %d: arguments : arguments COMMA logic_expression \n\n",line_count);
 
@@ -2589,11 +2569,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2593 "y.tab.c"
+#line 2573 "y.tab.c"
     break;
 
-  case 66:
-#line 947 "parser.y"
+  case 65:
+#line 942 "parser.y"
         {
 		// fprintf(logout,"line no. %d: arguments : logic_expression \n\n",line_count);
 
@@ -2602,11 +2582,11 @@ yyreduce:
 
 		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-#line 2606 "y.tab.c"
+#line 2586 "y.tab.c"
     break;
 
 
-#line 2610 "y.tab.c"
+#line 2590 "y.tab.c"
 
       default: break;
     }
@@ -2838,7 +2818,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 958 "parser.y"
+#line 953 "parser.y"
 
 
 int main(int argc,char *argv[])

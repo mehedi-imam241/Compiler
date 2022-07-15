@@ -60,7 +60,6 @@ public:
     {
         if(!cur) 
         {
-            cout<< "Entry "<<name<<" not found"<<endl;
             return false;
         }
         return cur->Delete(name);
@@ -114,7 +113,6 @@ public:
 
     ~symbolTable()
     {
-        // cout << " calling symbol table destructor\n";
         scopeTable *temp;
         while (cur)
         {
@@ -126,3 +124,5 @@ public:
         delete cur;
     }
 };
+
+

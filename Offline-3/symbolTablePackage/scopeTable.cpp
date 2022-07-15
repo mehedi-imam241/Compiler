@@ -42,14 +42,17 @@ public:
         int hash = hashFunction(name);
 
         int pos = table[hash].insert(name, type);
+
         if (pos != -1)
         {
-            cout << "Inserted in ScopeTable# " << getID() << " at position " << hash << ", " << pos << endl;
+            //fprintf(logout,"Inserted in ScopeTable# %s at position %d")
+            //cout << "Inserted in ScopeTable# " << getID() << " at position " << hash << ", " << pos << endl;
             return true;
         }
         else
         {
-            cout << "<" << name << "," << type << "> already exists in current ScopeTable" << endl;
+            fprintf(logout,"\n%s already exists in current ScopeTable\n",name.c_str());
+            //cout << "<" << name << "," << type << "> already exists in current ScopeTable" << endl;
             return false;
         }
     }
@@ -89,14 +92,15 @@ public:
     void print()
     {
 
-        cout<<"ScopeTable # "<<id<<endl;
+        fprintf(logout,"\nScopeTable # %s\n",id.c_str());
+        //cout<<"ScopeTable # "<<id<<endl;
 
         for (int i = 0; i < totalBuckets; i++)
         {
-            cout <<  i << " --> ";
-            table[i].display();
+            //cout <<  i << " --> ";
+            table[i].display(i);
         }
-        cout<<endl;
+        //cout<<endl;
     }
     ~scopeTable()
     {
@@ -104,13 +108,3 @@ public:
     }
 };
 
-// int main(void)
-// {
-//     totalBuckets = 7;
-//     scopeTable h1;
-//     h1.Insert("a", "a");
-//     h1.Insert("p", "p");
-//     // h1.Delete("a", "a");
-//     cout << h1.lookUp("a", "a")->getName() << endl;
-//     h1.print();
-// }

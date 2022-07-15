@@ -1,5 +1,4 @@
 #include "symbolInfo.h"
-using namespace std;
 
 class linkedList
 {
@@ -14,30 +13,35 @@ public:
 
     int insert(const string &name, string const &type)
     {
-        int pos = 0;
-        if (Head == nullptr)
+        pair<int, symbolINfo *> p = search(name);
+        int pos = p.first;
+
+        if (pos != -1)
+            return -1;
+
+        symbolINfo *newNode = new symbolINfo(name, type);
+
+        if (Head == NULL)
         {
-            Head = new symbolINfo(name, type);
+            Head = newNode;
+            pos = 0;
         }
+
         else
         {
-            pos = 1;
             symbolINfo *temp = Head;
-            if (temp->getName() == name)
-            {
-                return -1;
-            }
+            pos = 0;
 
-            while (temp->next)
+            // last node's next address will be NULL.
+            while (temp->next != NULL)
             {
-                if (temp->getName() == name)
-                {
-                    return -1;
-                }
                 temp = temp->next;
                 pos++;
             }
-            temp->next = new symbolINfo(name, type);
+
+            // add the newNode at the end of the linked list
+            temp->next = newNode;
+            pos++;
         }
         return pos;
     }
@@ -66,7 +70,7 @@ public:
         {
             if (Head->getName() == name)
             {
-                temp = Head; 
+                temp = Head;
                 Head = Head->next;
                 delete temp;
             }
@@ -76,7 +80,7 @@ public:
                 symbolINfo *current = Head;
                 while (current->next != NULL)
                 {
-                   
+
                     if (current->next->getName() == name)
                     {
                         temp = current->next;
@@ -102,15 +106,23 @@ public:
         return pos;
     }
 
-    void display()
+    void display(int i)
     {
         symbolINfo *temp = Head;
+
+        if (Head)
+            fprintf(logout, "%d --> ", i);
+
         while (temp)
         {
-            cout << " < " << temp->getName() << " : " << temp->getType() << " >";
+            fprintf(logout, " < %s : %s >", temp->getName().c_str(), temp->getType().c_str());
+            // cout << " < " << temp->getName() << " : " << temp->getType() << " >";
             temp = temp->next;
         }
-        cout << endl;
+
+        if (Head)
+            fprintf(logout, "\n");
+        // cout << endl;
     }
 
     ~linkedList()
