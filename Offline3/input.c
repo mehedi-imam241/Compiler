@@ -1,2 +1,3 @@
-int a[123],a[124];
-int p,q;
+int a(int p, int q){
+    p = p/q;
+}

@@ -46,7 +46,8 @@ void yyerror(string s)
 
 %type <smbl> start program compound_statement type_specifier parameter_list declaration_list var_declaration unit func_declaration statement statements variable expression factor arguments argument_list expression_statement unary_expression simple_expression logic_expression rel_expression term func_definition 
 
-%nonassoc LOWER_THAN_ELSE ELSE
+%nonassoc LOWER_THAN_ELSE 
+%nonassoc ELSE
 
 %%
 
@@ -157,62 +158,49 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 		 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN {table.enterScope();} compound_statement 
 	{
-		// fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement \n\n",line_count);
+		fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement \n\n",line_count);
 
-		// string line = $1->getName() + $2->getName() + "(" + $4->getName() + ")" + $7->getName();
+		$$  = new symbolINfo($1->getName() + " " +$2->getName() + "(" + $4->getName() + ")" + $7->getName(), "func_definition");
 
-		// symbolINfo *s = new symbolINfo(line, "func_definition");
-		// $$ = s;
+		$2->setReturnType($1->getVariableType()) ;
 
-		// $2->returnType = $1->varType;
-		// //cout << $2->getName() << " " << $2->returnType << endl;
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		for(symbolINfo* smbl:l)
+		{
+			table.insert(smbl->getName(), "ID");
+		}
 
-		// for(int i = 0; i < paramList.size(); i++)
-		// {
-		// 	table.insertSymbol(paramList[i]->getName(), "ID", 0);
-		// }
+		l.clear();
+		table.exitScope();
 
-		// paramList.clear();
+		string id = "ID";
+		table.insert($2->getName(), id);
+		symbolINfo *s = table.lookUP($2->getName());
+		s->setReturnType($1->getName());
 
-		// table.printCur(logout);
-		// table.removeScope();
+		table.printAllScopeTable();
 
-		// symbolINfo *sInfo = table.srch($2->getName());
-
-		// if(sInfo == NULL)
-		// {
-		// 	table.insertSymbol($2->getName(), "ID", 0);
-		// }
-
-		// symbolINfo = table.srch($2->getName());
-		// symbolINfo->returnType = $1->getName();
-
-		// table.printAll(logout);
 	}
 	| type_specifier ID LPAREN RPAREN {table.enterScope();} compound_statement 
 	{
-		// fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN RPAREN compound_statement\n\n",line_count);
+		fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN RPAREN compound_statement\n\n",line_count);
 	
-		// string line = $1->getName() + $2->getName() + "()" + $6->getName();
 
-		// symbolINfo *s = new symbolINfo(line, "func_definition");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName() + $2->getName() + "()" + $6->getName(), "func_definition");
 
-		// $2->returnType = $1->varType;
-		// //cout << $2->getName() << " " << $2->returnType << endl;		
+		$2->setReturnType($1->getVariableType()) ;
+		//cout << $2->getName() << " " << $2->returnType << endl;		
 
-		// table.insertSymbol($2->getName(), "ID", 0);
+		table.insert($2->getName(), "ID");
 
-		// symbolINfo = table.srch($2->getName());
-		// symbolINfo->returnType = $1->getName();
+		symbolINfo* s = table.lookUP($2->getName());
+		s->setReturnType($1->getName());
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// table.printCur(logout);
-		// table.removeScope();
-		// table.printAll(logout);
+		table.exitScope();
+		table.printAllScopeTable();
 	}
  	;				
 
@@ -224,12 +212,20 @@ parameter_list : parameter_list COMMA type_specifier ID
 		
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		$4->setVariableType(lastDeclaredType);
-		// $4->returnType = $3->returnType;
-		
-		l.push_back($4);
+		if (!table.insert($4->getName(), "ID"))
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
 
 		
+
+		$4->setVariableType(lastDeclaredType);
+		// $4->returnType = $3->returnType;
+
+		l.push_back($4);
+		table.printAllScopeTable();
+
 	}
 	| parameter_list COMMA type_specifier 
 	{
@@ -247,8 +243,16 @@ parameter_list : parameter_list COMMA type_specifier ID
 		$$->setName($$->getName()+" "+ $2->getName());
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
+		if (!table.insert($2->getName(), "ID"))
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
+
 		$2->setVariableType(lastDeclaredType);
 		l.push_back($2);
+
+		table.printAllScopeTable();
 
 	}
 	| type_specifier 
@@ -267,7 +271,7 @@ parameter_list : parameter_list COMMA type_specifier ID
 compound_statement : LCURL statements RCURL 
 	{
 		fprintf(logout,"line no. %d: compound_statement : LCURL statements RCURL\n\n",line_count);
-		$$ = new symbolINfo("{\n  " + $2->getName() + "\n}", "parameter_list");
+		$$ = new symbolINfo("{\n" + $2->getName() + "}", "parameter_list");
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
  	| LCURL RCURL 
@@ -334,10 +338,11 @@ declaration_list : declaration_list COMMA ID
 
 		if (!table.insert($3->getName(), "ID"))
 		{
-
 			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
 			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
 		}
+
+		//table.printAllScopeTable();
 
 		symbolINfo *s = table.lookUP($3->getName());
 		
@@ -350,6 +355,7 @@ declaration_list : declaration_list COMMA ID
 		{
 			s->setVariableType(lastDeclaredType);
 		}
+
 	}
  	| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 	{
@@ -458,7 +464,7 @@ statements : statement
 		fprintf(logout,"line no. %d: statements : statements statement\n\n",line_count);
 
 		string line;
-		line+=$1->getName()+" "+ $2->getName();
+		line+= $1->getName()+ $2->getName();
 		$$ = new symbolINfo(line, "statements");
 
 		fprintf(logout, "%s\n\n", line.c_str());
@@ -475,444 +481,330 @@ statement : var_declaration
 	}
 	| expression_statement
 	{
-		// fprintf(logout,"line no. %d: statement : expression_statement\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName()+ '\n', "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : expression_statement\n\n",line_count);
+		$$ = new symbolINfo($1->getName()+ '\n', "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| compound_statement
 	{
-		// fprintf(logout,"line no. %d: statement : compound_statement\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName() + '\n', "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : compound_statement\n\n",line_count);
+		$$ = new symbolINfo($1->getName() + '\n', "statement");
+		fprintf(logout, "%s\n\n", $1->getName().c_str());
 	}
 	| FOR LPAREN expression_statement expression_statement expression RPAREN statement
 	{
-		// fprintf(logout,"line no. %d: statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement\n\n",line_count);
-	
-		// string line = "for (" + $3->getName() + $4->getName() + $5->getName() + ") " + $7->getName();
-
-		// symbolINfo *s = new symbolINfo(line, "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement\n\n",line_count);
+		$$ = new symbolINfo("for ( " + $3->getName() + $4->getName() + $5->getName() + " ) " + $7->getName(), "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-	| IF LPAREN expression RPAREN statement 		%prec LOWER_THAN_ELSE
+	| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 	{
-		// fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement\n\n",line_count);
-	
-		// string line = "if (" + $3->getName() + ") " + $5->getName();
-
-		// symbolINfo *s = new symbolINfo(line, "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement\n\n",line_count);
+		$$ = new symbolINfo("if ( " + $3->getName() + " ) " + $5->getName(), "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
-	// | IF LPAREN expression RPAREN statement ELSE statement
-	// {
-	// 	// fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement ELSE statement\n\n",line_count);
-	
-	// 	// string line = "if (" + $3->getName() + ") " + $5->getName() + "else " + $7->getName();
-
-	// 	// symbolINfo *s = new symbolINfo(line, "statement");
-	// 	// $$ = s;
-
-	// 	// fprintf(logout, "%s\n\n", $$->getName().c_str());
-	// }
+	| IF LPAREN expression RPAREN statement ELSE statement
+	{
+		fprintf(logout,"line no. %d: statement : IF LPAREN expression RPAREN statement ELSE statement\n\n",line_count);
+		$$ = new symbolINfo("if ( " + $3->getName() + " ) " + $5->getName() + " else " + $7->getName(), "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
+	}
 	| WHILE LPAREN expression RPAREN statement
 	{
-		// fprintf(logout,"line no. %d: statement : WHILE LPAREN expression RPAREN statement\n\n",line_count);
-	
-		// string line = "while (" + $3->getName() + ") " + $5->getName();
-
-		// symbolINfo *s = new symbolINfo(line, "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : WHILE LPAREN expression RPAREN statement\n\n",line_count);
+		$$ = new symbolINfo("while (" + $3->getName() + ") " + $5->getName(), "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| PRINTLN LPAREN ID RPAREN SEMICOLON
 	{
-		// fprintf(logout,"line no. %d: statement : PRINTLN LPAREN ID RPAREN SEMICOLON\n\n",line_count);
+		fprintf(logout,"line no. %d: statement : PRINTLN LPAREN ID RPAREN SEMICOLON\n\n",line_count);
 	}
 	| RETURN expression SEMICOLON
 	{
-		// fprintf(logout,"line no. %d: statement : RETURN expression SEMICOLON\n\n",line_count);
-	
-		// symbolINfo *s = new symbolINfo("return " + $2->getName() + ";", "statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statement : RETURN expression SEMICOLON\n\n",line_count);
+		$$ = new symbolINfo("return " + $2->getName() + ";", "statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
 	  
 expression_statement : SEMICOLON
 	{
-		// fprintf(logout,"line no. %d: expression_statement : SEMICOLON\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo(";", "expression_statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: expression_statement : SEMICOLON\n\n",line_count);
+		$$ = new symbolINfo(";", "expression_statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| expression SEMICOLON 
 	{
-		// fprintf(logout,"line no. %d: expression_statement : expression SEMICOLON\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName() + ";", "expression_statement");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: expression_statement : expression SEMICOLON\n\n",line_count);
+		$$ = new symbolINfo($1->getName() + ";", "expression_statement");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
 	  
 variable : ID
 	{
-		// fprintf(logout,"line no. %d: variable: ID\n\n",line_count);
+		fprintf(logout,"line no. %d: variable: ID\n\n",line_count);
+		fprintf(logout, "%s\n\n", $1->getName().c_str());
 
-		// symbolINfo *s = new symbolINfo($1->getName(), "variable");
-		// $$ = s;
+		symbolINfo *s = table.lookUP($1->getName());
 
-		// symbolINfo = table.srch($1->getName());
-
-		// if(symbolINfo != NULL) $$->varType = symbolINfo->varType;
+		if(s == NULL){
+			fprintf(error_out, "Error no %d at Line %d: \'%s\' Undeclared\n\n",++errCounter, line_count, $1->getName().c_str());
+			fprintf(logout, "Error no %d at Line %d: \'%s\' Undeclared\n\n",errCounter, line_count, $1->getName().c_str());
+		}
+		else{
+			$$->setVariableType(s->getVariableType());
+		} 
+		$$->setType("variable");
 		
-		// //cout<<$$->getName()<<"  hg  "<<$$->varType<<endl;
- 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	} 		
 	| ID LTHIRD expression RTHIRD 
 	{
-		// fprintf(logout,"line no. %d: variable: ID LTHIRD expression RTHIRD\n\n",line_count);
+		fprintf(logout,"line no. %d: variable: ID LTHIRD expression RTHIRD\n\n",line_count);
+
+		string line;
+		line+=$1->getName() + "[" + $3->getName() + "]";
+		fprintf(logout, "%s\n\n", line);
 	
-		// symbolINfo *s = new symbolINfo($1->getName() + "[" + $3->getName() + "]", "variable");
-		// $$ = s;
+		$$ = new symbolINfo(line, "variable");
 
-		// $$->varType = $1->varType;
+		$$->setVariableType($1->getVariableType());
 		
-		// if($3->varType != "int")
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nArray indexing error\n\n", errCounter, line_count);
-		// 	//cout << $3->getName() << " \'" << $3->varType << "\' id:" << $1->getName() << endl ;
-		// }
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		if($3->getVariableType() != "int")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nArray indexing error\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nArray indexing error\n\n", errCounter, line_count);
+		}
 	}
 	;
 	 
  expression : logic_expression	
 	{
-		// fprintf(logout,"line no. %d: expression : logic_expression \n\n",line_count);
+		fprintf(logout,"line no. %d: expression : logic_expression \n\n",line_count);
+		fprintf(logout, "%s\n\n", $1->getName().c_str());
 	
-		// symbolINfo *s = new symbolINfo($1->getName(), "expression");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		$$->setVariableType($1->getVariableType());
 	}
     | variable ASSIGNOP logic_expression 
 	{
-		// fprintf(logout,"line no. %d: expression : variable ASSIGNOP logic_expression\n\n",line_count);
+		fprintf(logout,"line no. %d: expression : variable ASSIGNOP logic_expression\n\n",line_count);
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// symbolINfo *s = new symbolINfo($1->getName() + " = " + $3->getName(), "expression");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName() + " = " + $3->getName(), "expression");
 
-		// string t = "";
-		// for(int i = 0; i < $1->getName().length(); i++)
-		// {
-		// 	if($1->getName()[i] == '[') break;
-			
-		// 	else
-		// 	{
-		// 		t.push_back($1->getName()[i]);
-		// 	}
-		// }
+		int p = $1->getName().find("[");
+		string str;
 
-		// symbolINfo *sInfo = table.srch(t);
+		if (p != string::npos)
+			str = $1->getName().substr(0,p);
+		else 
+			str = $1->getName();
 
-		// if(sInfo == 0)
-		// {
-		// 	errCounter++;
-		// 	fprintf(logout,"variable %s not declared\n",t.c_str());
-		// }
 
-		// else
-		// {
-		// 	if(sInfo->varType != $3->varType)
-		// 	{
-		// 		errCounter++;
-		// 		fprintf(error_out, "Error no. %d at line no. %d\nAssignment error\n\n", errCounter, line_count);
-		// 	}
-		// }
+		symbolINfo *s = table.lookUP(str);
 
-		// $$->varType = $1->varType;
+		if(s == NULL)
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nvariable not declared\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nvariable not declared\n\n", errCounter, line_count);
+		}
+		else
+		{
+			if(s->getVariableType() != $3->getVariableType())
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nAssignment Error\n\n", ++errCounter, line_count);
+				fprintf(logout, "Error no. %d at line no. %d\nAssignment Error\n\n", errCounter, line_count);
+			}
+		}
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		$$->setVariableType($1->getVariableType());
 	}
     ;
 			
 logic_expression : rel_expression 
 	{
-		// fprintf(logout,"line no. %d: logic_expression : rel_expression \n\n",line_count);
+		fprintf(logout,"line no. %d: logic_expression : rel_expression \n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName(), "logic_expression");
-		// $$ = s;
+		$$->setType("logic_expression");
 
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
     | rel_expression LOGICOP rel_expression    
 	{
-		// fprintf(logout,"line no. %d: logic_expression : rel_expression LOGICOP rel_expression \n\n",line_count);
-		
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "logic_expression");
-		// $$ = s;
-
-		// $$->varType = "int";
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: logic_expression : rel_expression LOGICOP rel_expression \n\n",line_count);
+		$$ = new symbolINfo($1->getName() + " " + $2->getName()+ " " + $3->getName(), "logic_expression");
+		$$->setVariableType("int");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
     ;
 			
 rel_expression	: simple_expression 
 	{
-		// fprintf(logout,"line no. %d: rel_expression : simple_expression \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "rel_expression");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: rel_expression : simple_expression \n\n",line_count);
+		$$->setType("rel_expression");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| simple_expression RELOP simple_expression	
 	{
-		// fprintf(logout,"line no. %d: rel_expression : simple_expression RELOP simple_expression \n\n",line_count);
+		fprintf(logout,"line no. %d: rel_expression : simple_expression RELOP simple_expression \n\n",line_count);
 	
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "rel_expression");
-		// $$ = s;
-		
-		// $$->varType = "int";
+		$$ = new symbolINfo($1->getName() +" "+ $2->getName() +" "+ $3->getName(), "rel_expression");
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		$$->setVariableType("int");
+
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
 				
 simple_expression : term 
 	{
-		// fprintf(logout,"line no. %d: simple_expression : term \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "simple_expression");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: simple_expression : term \n\n",line_count);
+		$$->setVariableType($1->getVariableType()) ;
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
     | simple_expression ADDOP term 
 	{
-		// fprintf(logout,"line no. %d: simple_expression : simple_expression ADDOP term \n\n",line_count);
+		fprintf(logout,"line no. %d: simple_expression : simple_expression ADDOP term \n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "simple_expression");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "simple_expression");
 
-		// if($1->varType == "float" || $3->varType == "float")
-		// {
-		// 	$$->varType = "float";
-		// }
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// else
-		// {
-		// 	$$->varType = "int";
-		// }
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		if($1->getVariableType() == "int" && $3->getVariableType() == "int")
+		{
+			$$->setVariableType("int") ;
+		}
+		else
+		{
+			$$->setVariableType("float") ;
+		}
 	}
     ;
 					
 term : unary_expression
 	{
-		// fprintf(logout,"line no. %d: term : unary_expression\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "term");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: term : unary_expression\n\n",line_count);
+		$$->setVariableType($1->getVariableType());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
     |  term MULOP unary_expression
 	{
-		// fprintf(logout,"line no. %d: term : term MULOP unary_expression\n\n",line_count);
+		fprintf(logout,"line no. %d: term : term MULOP unary_expression \n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "term");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName() + $2->getName() + $3->getName(), "term");
 
-		// if($1->varType == "float" || $3->varType == "float")
-		// {
-		// 	$$->varType = "float";
-		// }
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// else
-		// {
-		// 	$$->varType = "int";
-		// }
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		if($1->getVariableType() == "int" && $3->getVariableType() == "int")
+		{
+			$$->setVariableType("int") ;
+		}
+		else
+		{
+			$$->setVariableType("float") ;
+		}
 	}
     ;
 
 unary_expression : ADDOP unary_expression  
 	{
-		// fprintf(logout,"line no. %d: unary_expression : ADDOP unary_expression\n\n",line_count);
+		fprintf(logout,"line no. %d: unary_expression : ADDOP unary_expression\n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName(), "unary_expression");
-		// $$ = s;
-
-		// $$->varType = $2->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		$$ = new symbolINfo($1->getName() + $2->getName(), "unary_expression");
+		$$->setVariableType($2->getVariableType());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| NOT unary_expression 
 	{
-		// fprintf(logout,"line no. %d: unary_expression : NOT unary_expression \n\n",line_count);
+		fprintf(logout,"line no. %d: unary_expression : NOT unary_expression \n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo("!" + $2->getName(), "unary_expression");
-		// $$ = s;
+		$$ = new symbolINfo("!" + $2->getName(), "unary_expression");
 
-		// $$->varType = $2->varType;
+		$$->setVariableType($2->getVariableType());
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| factor 
 	{
-		// fprintf(logout,"line no. %d: unary_expression : factor \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "unary_expression");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: unary_expression : factor \n\n",line_count);
+		$$->setType("unary_expression");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
 	
 factor : variable 
 	{
-		// fprintf(logout,"line no. %d: factor : variable\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "factor");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: factor : variable\n\n",line_count);
+		$$->setType("factor");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| ID LPAREN argument_list RPAREN
 	{
-		// fprintf(logout,"line no. %d: factor : ID LPAREN argument_list RPAREN\n\n",line_count);
+		fprintf(logout,"line no. %d: factor : ID LPAREN argument_list RPAREN\n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName(), "factor");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName(), "factor");
 
-		// symbolINfo = table.srch($1->getName());
-		// $$->varType = symbolINfo->returnType;
+		$$->setVariableType(table.lookUP($1->getName())->getReturnType()) ;
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| LPAREN expression RPAREN
 	{
-		// fprintf(logout,"line no. %d: factor : LPAREN expression RPAREN\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo("(" + $2->getName() + ")", "factor");
-		// $$ = s;
-
-		// $$->varType = $2->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: factor : LPAREN expression RPAREN\n\n",line_count);
+		$$ = new symbolINfo("(" + $2->getName() + ")", "factor");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| CONST_INT
 	{
-		// fprintf(logout,"line no. %d: factor : CONST_INT\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "factor");
-		// $$ = s;
-
-		// $$->varType = "int";
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: factor : CONST_INT\n\n",line_count);
+		$$ = new symbolINfo($1->getName(), "factor");
+		$$->setVariableType("int") ;
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	} 
 	| CONST_FLOAT
 	{
-		// fprintf(logout,"line no. %d: factor : CONST_FLOAT \n\n",line_count);
+		fprintf(logout,"line no. %d: factor : CONST_FLOAT \n\n",line_count);
+		$$ = new symbolINfo($1->getName(), "factor");
+		$$->setVariableType("float") ;
 
-		// symbolINfo *s = new symbolINfo($1->getName(), "factor");
-		// $$ = s;
-
-		// $$->varType = "float";
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| variable INCOP 
 	{
-		// fprintf(logout,"line no. %d: factor : variable INCOP \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName() + "++", "factor");
-		// $$ = s;
-
-		// $$->varType = $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: factor : variable INCOP \n\n",line_count);
+		$$ = new symbolINfo($1->getName() + "++", "factor");
+		$$->setVariableType($1->getVariableType()) ;
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| variable DECOP
 	{
-		// fprintf(logout,"line no. %d: factor : variable DECOP \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName() + "--", "factor");
-		// $$ = s;
-
-		// $$->varType == $1->varType;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: factor : variable DECOP \n\n",line_count);
+		$$ = new symbolINfo($1->getName() + "--", "factor");
+		$$->setVariableType($1->getVariableType()) ;
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
 	
 argument_list : arguments
-	/* {
+	{
 		fprintf(logout,"line no. %d: argument_list : arguments\n\n",line_count);
-
-		symbolINfo *s = new symbolINfo($1->getName(), "argument_list");
-		$$ = s;
-
+		$$->setType("argument_list");
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
-	} */
+	} 
 	| { }
 	;
 	
 arguments : arguments COMMA logic_expression
 	{
-		// fprintf(logout,"line no. %d: arguments : arguments COMMA logic_expression \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName() + ", " + $3->getName(), "arguments");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: arguments : arguments COMMA logic_expression \n\n",line_count);
+		$$ = new symbolINfo($1->getName() + ", " + $3->getName(), "arguments");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| logic_expression
 	{
-		// fprintf(logout,"line no. %d: arguments : logic_expression \n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "arguments");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: arguments : logic_expression \n\n",line_count);
+		$$->setType("arguments");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	;
  
@@ -922,7 +814,7 @@ arguments : arguments COMMA logic_expression
 int main(int argc,char *argv[])
 {
 	totalBuckets = 7;
-	cout<<"here"<<endl;
+	table.enterScope();
 
 	if((yyin=fopen(argv[1],"r"))==NULL)
 	{
@@ -942,7 +834,7 @@ int main(int argc,char *argv[])
 	
 	yyparse();
 
-	//table.printAllScopeTable();
+	table.printAllScopeTable();
 	fprintf(logout,"total lines: %d\n",line_count);
 	fprintf(logout,"total errors encountered: %d\n",errCounter);
 	
