@@ -11,10 +11,10 @@ FILE* error_out;
 
 symbolTable table;
 
-int errCounter = 0;
+int errCounter = 0, totalBuckets;
 string lastDeclaredType;
 
-void yyerror(char *s)
+void yyerror(string s)
 {	
 	fprintf(error_out, "line no. %d: Error no. %d found\n%s\n", line_count, errCounter, s);
     errCounter++;
@@ -317,6 +317,14 @@ type_specifier : INT
 	}
  	| FLOAT
 	{
+		fprintf(logout,"line no. %d: type_specifier : FLOAT\n\n",line_count);
+		fprintf(logout,"float\n\n");
+
+		symbolINfo *s = new symbolINfo("float","type_specifier");
+		s->setVariableType("float");
+		$$ = s;
+
+		lastDeclaredType = "float";
 		// fprintf(logout,"line no. %d: type_specifier : FLOAT\n\n",line_count);
 
 		// symbolINfo *s = new symbolINfo("float ", "type_specifier");
@@ -954,12 +962,16 @@ arguments : arguments COMMA logic_expression
 
 int main(int argc,char *argv[])
 {
+	totalBuckets = 7;
+	cout<<"here"<<endl;
 
 	if((yyin=fopen(argv[1],"r"))==NULL)
 	{
 		printf("Cannot Open Input File.\n");
 		exit(1);
 	}
+
+
 
 	logout= fopen(argv[2],"w");
 	fclose(logout);
@@ -971,7 +983,7 @@ int main(int argc,char *argv[])
 	
 	yyparse();
 
-	table.printAllScopeTable();
+	//table.printAllScopeTable();
 	fprintf(logout,"total lines: %d\n",line_count);
 	fprintf(logout,"total errors encountered: %d\n",errCounter);
 	

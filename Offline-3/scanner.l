@@ -5,24 +5,23 @@
 %x MULTILINECOMMENTSTATE
 
 %{
-#include "symbolTablePackage/globals.h"
-#include "symbolTablePackage/symbolTable.cpp"
-#include "y.tab.h"
+#include "symbolTablePackage/linkedList/symbolInfo.h"
+#include "parser.tab.h"
 using namespace std;
 
-
-int totalBuckets;
-
 int idx;
+
+extern FILE *error_out;
 
 int line_count=1;
 int string_start_line;
 int comment_start_line;
 
-symbolTable smtbl;
+
 string str ;
 string temp;
-int errCounter = 0;
+extern int errCounter;
+
 
 
 
@@ -292,7 +291,7 @@ NEWLINE \n
 
 \'\\\' {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Unfinished character in %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Unfinished character in %s\n",line_count,yytext);
 }
 
 \'.\' {
@@ -323,7 +322,7 @@ NEWLINE \n
 		line_count++;
 		errCounter++;
 		temp.push_back(yytext[0]);
-		fprintf(logout,"\nError at line %d: Unterminated string %s\n",string_start_line,temp.c_str());
+		fprintf(error_out,"\nError at line %d: Unterminated string %s\n",string_start_line,temp.c_str());
 		BEGIN INITIAL;
 	}
 
@@ -389,7 +388,7 @@ NEWLINE \n
 
 <MULTILINECOMMENTSTATE><<EOF>> {
 		errCounter++;
-		fprintf(logout,"\nError at line %d: Unterminated comment %s\n",comment_start_line,temp.c_str());
+		fprintf(error_out,"\nError at line %d: Unterminated comment %s\n",comment_start_line,temp.c_str());
 		yyterminate();
 }
 
@@ -405,36 +404,36 @@ NEWLINE \n
 
 [0-9]*\.[0-9]*(\.[0-9]*)+ {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Too many decimal points in number %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Too many decimal points in number %s\n",line_count,yytext);
 }
 
 [0-9]+[_a-zA-Z][_a-zA-Z0-9]* {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Invalid Suffix on numeric constant or invalid prefix on identifier %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Invalid Suffix on numeric constant or invalid prefix on identifier %s\n",line_count,yytext);
 }
 
 [0-9]+E[0-9]*\.[0-9]* {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Ill formed number %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Ill formed number %s\n",line_count,yytext);
 }
 
 \'.{2,}\' {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Multi character constant error in %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Multi character constant error in %s\n",line_count,yytext);
 }
 
 \'\' {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Empty character constant error in %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Empty character constant error in %s\n",line_count,yytext);
 }
 
 \'[^\'\n]+ {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Unfinished character in %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Unfinished character in %s\n",line_count,yytext);
 }
 . {
 	errCounter++;
-	fprintf(logout,"\nError at line %d: Unrcognized character in %s\n",line_count,yytext);
+	fprintf(error_out,"\nError at line %d: Unrcognized character in %s\n",line_count,yytext);
 }
 
 %%
@@ -452,19 +451,19 @@ NEWLINE \n
 		return 0;
 	}
 	totalBuckets = 7;
-	logout= fopen("log.txt","w");
+	error_out= fopen("log.txt","w");
 	tokenout= fopen("token.txt","w");
 
 	yyin= fin;
 	yylex();
 
 	smtbl.printAllScopeTable();
-	fprintf(logout,"\nTotal Lines: %d\n",line_count);
-	fprintf(logout,"Total errors: %d\n",errCounter);
+	fprintf(error_out,"\nTotal Lines: %d\n",line_count);
+	fprintf(error_out,"Total errors: %d\n",errCounter);
 
 	fclose(yyin);
 	fclose(tokenout);
-	fclose(logout);
+	fclose(error_out);
 
 	return 0;
 } */

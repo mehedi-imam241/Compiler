@@ -1,12 +1,8 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 #ifndef SYMBOLINFO_H_
 #define SYMBOLINFO_H_
 
-
-FILE* logout;
-FILE* tokenout;
+#include <bits/stdc++.h>
+using namespace std;
 
 class symbolINfo
 {

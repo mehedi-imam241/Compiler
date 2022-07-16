@@ -1,0 +1,6 @@
+line no. 1: type_specifier : FLOAT
+
+float
+
+total lines: 1
+total errors encountered: 1

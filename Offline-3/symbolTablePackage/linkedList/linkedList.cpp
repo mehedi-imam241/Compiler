@@ -1,5 +1,7 @@
 #include "symbolInfo.h"
 
+FILE* logout;
+
 class linkedList
 {
 private:
