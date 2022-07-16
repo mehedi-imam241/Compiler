@@ -1,2 +1,3 @@
-line no. 1: Error no. 0 found
-0òb
+Error no. 1 at line no. 1
+Already Exists
+

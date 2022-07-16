@@ -13,11 +13,12 @@ symbolTable table;
 
 int errCounter = 0, totalBuckets;
 string lastDeclaredType;
+list<symbolINfo*> l;
+
 
 void yyerror(string s)
 {	
-	fprintf(error_out, "line no. %d: Error no. %d found\n%s\n", line_count, errCounter, s);
-    errCounter++;
+	fprintf(error_out, "line no. %d: Error no. %d found\n%s\n", line_count, ++errCounter, s.c_str());
 }
 
 
@@ -146,15 +147,11 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 				errCounter++;
 			}
 			
-			string Line = "";
-			Line += $1->getName() + " " + $2->getName() + "();";
-			
-			symbolINfo* sym = new symbolINfo(Line, "function_declaration");
-			$$ = sym;
-			
+			string Line = $1->getName() + " " + $2->getName() + "();";
 			fprintf(logout, "%s\n\n", Line.c_str());
 			
-
+			$$  = new symbolINfo(Line, "function_declaration");
+			
 	}
 	;
 		 
@@ -222,67 +219,46 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {table.enterSco
 
 parameter_list : parameter_list COMMA type_specifier ID 
 	{
-		// fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier ID\n\n",line_count);
+		fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier ID\n\n",line_count);
+		$$ = new symbolINfo( $1->getName() + ", " + $3->getName() +" "+$4->getName(), "parameter_list");
+		
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// string line = $1->getName() + ", " + $3->getName() + $4->getName();
-
-		// symbolINfo *s = new symbolINfo(line, "parameter_list");
-		// $$ = s;
-
-		// $4->varType = variableType;
+		$4->setVariableType(lastDeclaredType);
 		// $4->returnType = $3->returnType;
 		
-		// paramList.push_back($4);
+		l.push_back($4);
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		
 	}
 	| parameter_list COMMA type_specifier 
 	{
-		// fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier\n\n",line_count);
-	
-		// string line = $1->getName() + ", " + $3->getName();
 
-		// symbolINfo *s = new symbolINfo(line, "parameter_list");
-		// $$ = s;
+		fprintf(logout,"line no. %d: parameter_list : parameter_list COMMA type_specifier\n\n",line_count);
+		$$ = new symbolINfo($1->getName() + ", " + $3->getName(), "parameter_list");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
  	| type_specifier ID 
  	{
 
 		fprintf(logout,"line no. %d: parameter_list : type_specifier ID\n\n",line_count);
 
-		$$->setName($$->getName() + $2->getName());
-
-		//$2->varType = $1->varType;
-		
-		//paramList.push_back($2);
-
+		$$->setName($$->getName()+" "+ $2->getName());
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
+		$2->setVariableType(lastDeclaredType);
+		l.push_back($2);
 
-		// fprintf(logout,"line no. %d: parameter_list : type_specifier ID\n\n",line_count);
-
-		// $$->setName($$->getName() + $2->getName());
-
-		// $2->varType = $1->varType;
-		
-		// paramList.push_back($2);
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
 	| type_specifier 
 	{
 		fprintf(logout,"line no. %d: parameter_list : type_specifier\n\n",line_count);
 		fprintf(logout, "%s\n\n", $1->getName().c_str());
 
-		symbolINfo *s = new symbolINfo($1->getName(), "parameter_list");
-		$$ = s;
-
-		// cout<<lastDeclaredType<<endl;
-		// cout<<"hello"<<endl;
-
-		//$1->varType = variableType;
+		$$ = new symbolINfo($1->getName(), "parameter_list");
+		
+		$$->setVariableType(lastDeclaredType);
 
 	}
  	;
@@ -290,32 +266,25 @@ parameter_list : parameter_list COMMA type_specifier ID
  		
 compound_statement : LCURL statements RCURL 
 	{
-		// fprintf(logout,"line no. %d: compound_statement : LCURL statements RCURL\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo("{\n" + $2->getName() + "\n}", "parameter_list");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: compound_statement : LCURL statements RCURL\n\n",line_count);
+		$$ = new symbolINfo("{\n  " + $2->getName() + "\n}", "parameter_list");
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
  	| LCURL RCURL 
  	{
-		// fprintf(logout,"line no. %d: compound_statement : LCURL RCURL\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo("{}", "parameter_list");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: compound_statement : LCURL RCURL\n\n",line_count);
+		fprintf(logout, "%s\n\n", "{}");
+		$$ = new symbolINfo("{}", "parameter_list");
 	}
  	;
  		    
 var_declaration : type_specifier declaration_list SEMICOLON
 	{
-		// fprintf(logout,"line no. %d: var_declaration : type_specifier declaration_list SEMICOLON\n\n",line_count);
+		fprintf(logout,"line no. %d: var_declaration : type_specifier declaration_list SEMICOLON\n\n",line_count);
 	
-		// symbolINfo *s = new symbolINfo($1->getName() + $2->getName() + ";", "parameter_list");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName()+" "+ $2->getName() + ";", "parameter_list");
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
  	;
  		 
@@ -357,155 +326,142 @@ type_specifier : INT
  		
 declaration_list : declaration_list COMMA ID
 	{
-		// fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID\n\n",line_count);
+		fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID\n\n",line_count);
 
-		// $$->setName($$->getName() + ", " + $3->getName());
+		$$->setName($1->getName() + ", " + $3->getName());
 
-		// fprintf(logout,"%s\n\n", $$->getName().c_str());
+		fprintf(logout,"%s\n\n", $$->getName().c_str());
 
-		// check = table.insertSymbol($3->getName(), "ID", 0);
+		if (!table.insert($3->getName(), "ID"))
+		{
 
-		// if (check == false)
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
-		// }
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
 
-		// symbolINfo *sInfo = table.srch($3->getName());
+		symbolINfo *s = table.lookUP($3->getName());
 		
-		// if(variableType != "void")
-		// {
-		// 	sInfo->varType = variableType;
-		// }
-
-		// else 
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
-		// }
-
-		//table.printCur(logout);
+		if(lastDeclaredType == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
+		}
+		else 
+		{
+			s->setVariableType(lastDeclaredType);
+		}
 	}
  	| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 	{
-		// fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
+		fprintf(logout,"line no. %d: declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
 
-		// $$->setName($$->getName() + ", " + $3->getName() + "[" + $5->getName() + "]" );
+		string line;
+		line+= $1->getName() + ", " + $3->getName() + "[" + $5->getName() + "]" ;
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		$$->setName(line);
 
-		// int number = atoi($5->getName().c_str());
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		// check = table.insertSymbol($3->getName(), "ID", number);
 
-		// if (check == false)
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
-		// }
+		// stringstream ss;
+		// ss<<$5->getName();
+		// ss>>val;
 
-		// //table.printCur(logout);
+		if (!table.insert($3->getName(), "ID"))
+		{
 
-		// symbolINfo *sInfo = table.srch($3->getName());
-	
-		// if(variableType != "void")
-		// {
-		// 	sInfo->varType = variableType;
-		// }
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
 
-		// else 
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
-		// }
+		symbolINfo *s = table.lookUP($3->getName());
+		
+		if(lastDeclaredType == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
+		}
+		else 
+		{
+			s->setVariableType(lastDeclaredType);
+		}
 	}
  	| ID
 	{
-		// fprintf(logout,"line no. %d: declaration_list : ID\n\n",line_count);
+		fprintf(logout,"line no. %d: declaration_list : ID\n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo($1->getName(),"declaration_list");
-		// $$ = s;
+		$$ = new symbolINfo($1->getName(),"declaration_list");
 
-		// fprintf(logout,"%s\n\n", $$->getName().c_str());
+		fprintf(logout,"%s\n\n", $1->getName().c_str());
 
-		// check = table.insertSymbol($1->getName(), "ID", 0);
 
-		// if (check == false)
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
-		// }
+		if (!table.insert($1->getName(), "ID"))
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
 
-		// symbolINfo *sInfo = table.srch($1->getName());
-	
-		// if(variableType != "void")
-		// {
-		// 	sInfo->varType = variableType;
-		// }
-
-		// else 
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
-		// }
+		symbolINfo *s1 = table.lookUP($1->getName());
 		
+		if(lastDeclaredType == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
+		}
+		else 
+		{
+			s1->setVariableType(lastDeclaredType);
+		}
 
-		//table.printCur(logout);
 	}
  	| ID LTHIRD CONST_INT RTHIRD
 	{
-		// fprintf(logout,"line no. %d: declaration_list : ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
 
-		// string line = $1->getName() + "[" + $3->getName() + "]";
+		fprintf(logout,"line no. %d: declaration_list : ID LTHIRD CONST_INT RTHIRD\n\n",line_count);
 
-		// symbolINfo *s = new symbolINfo(line, "declaration_list");
-		// $$ = s;
+		string line = $1->getName() + "[" + $3->getName() + "]";
 
-		// fprintf(logout,"%s\n\n", $$->getName().c_str());
+		symbolINfo *s = new symbolINfo(line, "declaration_list");
+		$$ = s;
 
-		// int number=atoi($3->getName().c_str());
+		fprintf(logout,"%s\n\n", $$->getName().c_str());
+
+		if (!table.insert($1->getName(), "ID"))
+		{
+
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
+
+		symbolINfo *s1 = table.lookUP($1->getName());
 		
-		// check = table.insertSymbol($1->getName(), "ID", number);
-
-		// if (check == false)
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
-		// }
-
-		// symbolINfo *sInfo = table.srch($1->getName());
-		
-		// if(variableType != "void")
-		// {
-		// 	sInfo->varType = variableType;
-		// }
-
-		// else 
-		// {
-		// 	errCounter++;
-		// 	fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
-		// }
-
-		// //table.printCur(logout);
+		if(lastDeclaredType == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVariable type can't be void\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVariable type can't be void\n\n", errCounter, line_count);
+		}
+		else 
+		{
+			s1->setVariableType(lastDeclaredType);
+		}
 	}
  	;
  		  
 statements : statement
 	{
-		// fprintf(logout,"line no. %d: statements : statement\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo($1->getName(), "statements");
-		// $$ = s;
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout,"line no. %d: statements : statement\n\n",line_count);
+		fprintf(logout, "%s\n\n", $1->getName().c_str());
+		$$ = new symbolINfo($1->getName(), "statements");
 	}
     | statements statement
 	{
-		// fprintf(logout,"line no. %d: statements : statements statement\n\n",line_count);
+		fprintf(logout,"line no. %d: statements : statements statement\n\n",line_count);
 
-		// $$->setName($$->getName() + $2->getName());
+		string line;
+		line+=$1->getName()+" "+ $2->getName();
+		$$ = new symbolINfo(line, "statements");
 
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		fprintf(logout, "%s\n\n", line.c_str());
 	}
     ;
 	   
@@ -513,8 +469,7 @@ statement : var_declaration
 	{
 		fprintf(logout,"line no. %d: statement : var_declaration\n\n",line_count);
 
-		symbolINfo *s = new symbolINfo($1->getName() + '\n', "statement");
-		$$ = s;
+		$$ = new symbolINfo($1->getName() + '\n', "statement");
 
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}

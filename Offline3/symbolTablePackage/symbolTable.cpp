@@ -49,6 +49,8 @@ public:
         }
     }
 
+
+
     bool insert(string const &name, string const &type)
     {
         if (!cur)
@@ -78,7 +80,7 @@ public:
             }
             temp = temp->parent;
         }
-        cout << "Entry name " << name << " not found" << endl;
+        // cout << "Entry name " << name << " not found" << endl;
         return NULL;
     }
 
