@@ -249,6 +249,18 @@ parameter_list : parameter_list COMMA type_specifier ID
 	}
  	| type_specifier ID 
  	{
+
+		fprintf(logout,"line no. %d: parameter_list : type_specifier ID\n\n",line_count);
+
+		$$->setName($$->getName() + $2->getName());
+
+		//$2->varType = $1->varType;
+		
+		//paramList.push_back($2);
+
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
+
+
 		// fprintf(logout,"line no. %d: parameter_list : type_specifier ID\n\n",line_count);
 
 		// $$->setName($$->getName() + $2->getName());
@@ -261,13 +273,17 @@ parameter_list : parameter_list COMMA type_specifier ID
 	}
 	| type_specifier 
 	{
-		// fprintf(logout,"line no. %d: parameter_list : type_specifier\n\n",line_count);
+		fprintf(logout,"line no. %d: parameter_list : type_specifier\n\n",line_count);
+		fprintf(logout, "%s\n\n", $1->getName().c_str());
 
-		// symbolINfo *s = new symbolINfo($1->getName(), "parameter_list");
-		// $$ = s;
+		symbolINfo *s = new symbolINfo($1->getName(), "parameter_list");
+		$$ = s;
 
-		// //$1->varType = variableType;
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		// cout<<lastDeclaredType<<endl;
+		// cout<<"hello"<<endl;
+
+		//$1->varType = variableType;
+
 	}
  	;
 
@@ -325,29 +341,17 @@ type_specifier : INT
 		$$ = s;
 
 		lastDeclaredType = "float";
-		// fprintf(logout,"line no. %d: type_specifier : FLOAT\n\n",line_count);
-
-		// symbolINfo *s = new symbolINfo("float ", "type_specifier");
-		// $$ = s;
-
-		// variableType = "float";
-		
-		// $$->varType = "float";
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}
  	| VOID
 	{
-		// fprintf(logout,"line no. %d: type_specifier : VOID\n\n",line_count);
+		fprintf(logout,"line no. %d: type_specifier : VOID\n\n",line_count);
+		fprintf(logout,"void\n\n");
 
-		// symbolINfo *s = new symbolINfo("void ", "type_specifier");
-		// $$ = s;
+		symbolINfo *s = new symbolINfo("void","type_specifier");
+		s->setVariableType("void");
+		$$ = s;
 
-		// variableType = "void";
-		
-		// $$->varType = "void";
-
-		// fprintf(logout, "%s\n\n", $$->getName().c_str());
+		lastDeclaredType = "void";
 	}
  	;
  		
