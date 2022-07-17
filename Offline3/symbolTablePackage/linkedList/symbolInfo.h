@@ -20,6 +20,7 @@ public:
         this->type = type;
         next = nullptr;
         isArray = false;
+        paramList = {};
     }
 
     string getName()
@@ -57,7 +58,7 @@ public:
     }
     void print()
     {
-        cout<<endl<<endl<<name<<" "<<type<<" "<<variableType<<" "<<retType<<endl<<endl;
+        cout<<endl<<endl<<name<<" "<<type<<" "<<variableType<<" "<<retType<<" "<<paramList.empty()<<endl<<endl;
     }
 };
 

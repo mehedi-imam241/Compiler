@@ -1,0 +1,6 @@
+Error no. 1 at line no. 9
+Undeclared Variable
+
+Error no. 2 at line no. 9
+Undeclared Variable
+

@@ -786,47 +786,61 @@ factor : variable
 		$$ = new symbolINfo($1->getName()+"("+$3->getName()+")", "factor");
 
 		symbolINfo *temp = table.lookUP($1->getName());
-		if(temp==NULL)
+
+		cout<<l.size()<<" "<<endl;
+		// cout<<"hello world";
+		//temp->print();
+		// cout<<"hello world";
+
+		if(temp == NULL)
 		{
+			cout<<"hello world";
 			fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Function\n\n", ++errCounter, line_count);
 			fprintf(logout, "Error no. %d at line no. %d\nUndeclared Function\n\n", errCounter, line_count);
 		}
-
-
-		if(l.size()!=temp->paramList.size())
-		{
-			fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Variable\n\n", ++errCounter, line_count);
-			fprintf(logout, "Error no. %d at line no. %d\nUndeclared Variable\n\n", errCounter, line_count);
-		}
-		else if(l.size()){
-			int i = 0;
-			for(symbolINfo* smbl:l)
+		else {
+			if(l.size()>temp->paramList.size())
 			{
-				symbolINfo *s = table.lookUP(smbl->getName());
-				if(s==NULL)
+				fprintf(error_out, "Error no. %d at line no. %d\nToo many arguments\n\n", ++errCounter, line_count);
+				fprintf(logout, "Error no. %d at line no. %d\nToo many arguments\n\n", errCounter, line_count);
+			}
+			else if(l.size()<temp->paramList.size())
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nToo few arguments\n\n", ++errCounter, line_count);
+				fprintf(logout, "Error no. %d at line no. %d\nToo few arguments\n\n", errCounter, line_count);
+			}
+			else if(l.size() && temp->paramList.size()){
+				int i = 0;
+				for(symbolINfo* smbl:l)
 				{
-					fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Variable\n\n", ++errCounter, line_count);
-					fprintf(logout, "Error no. %d at line no. %d\nUndeclared Variable\n\n", errCounter, line_count);
-				}
-				else {
-					if(temp->paramList[i]->isArray != s->isArray)
+					symbolINfo *s = table.lookUP(smbl->getName());
+					if(s==NULL)
 					{
-						fprintf(error_out, "Error no. %d at line no. %d\nType Mismatch\n\n", ++errCounter, line_count);
-						fprintf(logout, "Error no. %d at line no. %d\nType Mismatch\n\n", errCounter, line_count);
+						fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Variable\n\n", ++errCounter, line_count);
+						fprintf(logout, "Error no. %d at line no. %d\nUndeclared Variable\n\n", errCounter, line_count);
 					}
-					else if(temp->paramList[i]->getVariableType()!=s->getVariableType())
-					{
-						fprintf(error_out, "Error no. %d at line no. %d\nType Mismatch\n\n", ++errCounter, line_count);
-						fprintf(logout, "Error no. %d at line no. %d\nType Mismatch\n\n", errCounter, line_count);
+					else {
+						if(temp->paramList[i]->isArray != s->isArray)
+						{
+							fprintf(error_out, "Error no. %d at line no. %d\nType Mismatch\n\n", ++errCounter, line_count);
+							fprintf(logout, "Error no. %d at line no. %d\nType Mismatch\n\n", errCounter, line_count);
+						}
+						else if(temp->paramList[i]->getVariableType()!=s->getVariableType())
+						{
+							fprintf(error_out, "Error no. %d at line no. %d\nType Mismatch\n\n", ++errCounter, line_count);
+							fprintf(logout, "Error no. %d at line no. %d\nType Mismatch\n\n", errCounter, line_count);
+						}
+						i++;
 					}
-					i++;
 				}
 			}
 		}
-		
-
 		l.clear();
-		$$->setVariableType(table.lookUP($1->getName())->getReturnType()) ;
+
+		if(temp!=NULL)
+		{
+			$$->setVariableType(temp->getReturnType()) ;
+		}
 
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 	}

@@ -1,0 +1,529 @@
+line no. 1: type_specifier : INT
+
+int
+
+line no. 1: declaration_list : ID
+
+y
+
+
+ScopeTable # 1
+2 -->  < y : ID >
+line no. 1: var_declaration : type_specifier declaration_list SEMICOLON
+
+int y;
+
+line no. 1: unit: var_declaration
+
+
+int y;
+
+line no. 1: program : unit
+
+
+int y;
+
+line no. 3: type_specifier : INT
+
+int
+
+line no. 3: type_specifier : INT
+
+int
+
+line no. 3: parameter_list : type_specifier ID
+
+int a
+
+line no. 3: type_specifier : INT
+
+int
+
+line no. 3: parameter_list : parameter_list COMMA type_specifier ID
+
+int a, int b
+
+line no. 4: variable: ID
+
+a
+
+line no. 4: variable: ID
+
+a
+
+line no. 4: factor : variable
+
+a
+
+line no. 4: unary_expression : factor 
+
+a
+
+line no. 4: term : unary_expression
+
+a
+
+line no. 4: simple_expression : term 
+
+a
+
+line no. 4: variable: ID
+
+y
+
+line no. 4: factor : variable
+
+y
+
+line no. 4: unary_expression : factor 
+
+y
+
+line no. 4: term : unary_expression
+
+y
+
+line no. 4: factor : CONST_INT
+
+2
+
+line no. 4: unary_expression : factor 
+
+2
+
+line no. 4: term : term MULOP unary_expression 
+
+y*2
+
+line no. 4: simple_expression : simple_expression ADDOP term 
+
+a+y*2
+
+line no. 4: rel_expression : simple_expression 
+
+a+y*2
+
+line no. 4: logic_expression : rel_expression 
+
+a+y*2
+
+line no. 4: expression : variable ASSIGNOP logic_expression
+
+
+ScopeTable # 1.1
+0 -->  < b : ID >
+6 -->  < a : ID >
+
+ScopeTable # 1
+2 -->  < y : ID >
+a = a+y*2
+
+line no. 4: expression_statement : expression SEMICOLON
+
+a = a+y*2;
+
+line no. 4: statement : expression_statement
+
+a = a+y*2;
+
+
+line no. 4: statements : statement
+
+a = a+y*2;
+
+
+line no. 5: variable: ID
+
+a
+
+line no. 5: factor : variable
+
+a
+
+line no. 5: unary_expression : factor 
+
+a
+
+line no. 5: term : unary_expression
+
+a
+
+line no. 5: simple_expression : term 
+
+a
+
+line no. 5: variable: ID
+
+b
+
+line no. 5: factor : variable
+
+b
+
+line no. 5: unary_expression : factor 
+
+b
+
+line no. 5: term : unary_expression
+
+b
+
+line no. 5: simple_expression : simple_expression ADDOP term 
+
+a+b
+
+line no. 5: rel_expression : simple_expression 
+
+a+b
+
+line no. 5: logic_expression : rel_expression 
+
+a+b
+
+line no. 5: expression : logic_expression 
+
+a+b
+
+line no. 5: statement : RETURN expression SEMICOLON
+
+return a+b;
+
+line no. 5: statements : statements statement
+
+a = a+y*2;
+return a+b;
+
+line no. 6: compound_statement : LCURL statements RCURL
+
+{ 
+a = a+y*2;
+return a+b;
+}
+
+line no. 6: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement 
+
+int var(int a, int b){ 
+a = a+y*2;
+return a+b;
+}
+
+
+ScopeTable # 1
+0 -->  < var : ID >
+2 -->  < y : ID >
+line no. 6: unit: func_definition
+
+
+int var(int a, int b){ 
+a = a+y*2;
+return a+b;
+}
+
+line no. 6: program : program unit
+
+
+int y;
+
+int var(int a, int b){ 
+a = a+y*2;
+return a+b;
+}
+
+line no. 7: type_specifier : INT
+
+int
+
+line no. 8: type_specifier : FLOAT
+
+float
+
+line no. 8: declaration_list : ID
+
+d
+
+
+ScopeTable # 1.2
+2 -->  < d : ID >
+
+ScopeTable # 1
+0 -->  < var : ID >
+2 -->  < y : ID >
+line no. 8: var_declaration : type_specifier declaration_list SEMICOLON
+
+float d;
+
+line no. 8: statement : var_declaration
+
+float d;
+
+
+line no. 8: statements : statement
+
+float d;
+
+
+line no. 9: variable: ID
+
+d
+
+line no. 9: factor : CONST_INT
+
+1
+
+line no. 9: unary_expression : factor 
+
+1
+
+line no. 9: term : unary_expression
+
+1
+
+line no. 9: simple_expression : term 
+
+1
+
+line no. 9: rel_expression : simple_expression 
+
+1
+
+line no. 9: logic_expression : rel_expression 
+
+1
+
+line no. 9: arguments : logic_expression 
+
+1
+
+line no. 9: factor : CONST_INT
+
+2
+
+line no. 9: unary_expression : factor 
+
+2
+
+line no. 9: term : unary_expression
+
+2
+
+line no. 9: factor : CONST_INT
+
+3
+
+line no. 9: unary_expression : factor 
+
+3
+
+line no. 9: term : term MULOP unary_expression 
+
+2*3
+
+line no. 9: simple_expression : term 
+
+2*3
+
+line no. 9: rel_expression : simple_expression 
+
+2*3
+
+line no. 9: logic_expression : rel_expression 
+
+2*3
+
+line no. 9: arguments : arguments COMMA logic_expression 
+
+1, 2*3
+
+line no. 9: argument_list : arguments
+
+1, 2*3
+
+line no. 9: factor : ID LPAREN argument_list RPAREN
+
+Error no. 1 at line no. 9
+Undeclared Variable
+
+Error no. 2 at line no. 9
+Undeclared Variable
+
+var(1, 2*3)
+
+line no. 9: unary_expression : factor 
+
+var(1, 2*3)
+
+line no. 9: term : unary_expression
+
+var(1, 2*3)
+
+line no. 9: simple_expression : term 
+
+var(1, 2*3)
+
+line no. 9: factor : CONST_FLOAT 
+
+3.5
+
+line no. 9: unary_expression : factor 
+
+3.5
+
+line no. 9: term : unary_expression
+
+3.5
+
+line no. 9: factor : CONST_INT
+
+2
+
+line no. 9: unary_expression : factor 
+
+2
+
+line no. 9: term : term MULOP unary_expression 
+
+3.5*2
+
+line no. 9: simple_expression : simple_expression ADDOP term 
+
+var(1, 2*3)+3.5*2
+
+line no. 9: rel_expression : simple_expression 
+
+var(1, 2*3)+3.5*2
+
+line no. 9: logic_expression : rel_expression 
+
+var(1, 2*3)+3.5*2
+
+line no. 9: expression : variable ASSIGNOP logic_expression
+
+
+ScopeTable # 1.2
+2 -->  < d : ID >
+
+ScopeTable # 1
+0 -->  < var : ID >
+2 -->  < y : ID >
+d = var(1, 2*3)+3.5*2
+
+line no. 9: expression_statement : expression SEMICOLON
+
+d = var(1, 2*3)+3.5*2;
+
+line no. 9: statement : expression_statement
+
+d = var(1, 2*3)+3.5*2;
+
+
+line no. 9: statements : statements statement
+
+float d;
+d = var(1, 2*3)+3.5*2;
+
+
+line no. 10: factor : CONST_INT
+
+0
+
+line no. 10: unary_expression : factor 
+
+0
+
+line no. 10: term : unary_expression
+
+0
+
+line no. 10: simple_expression : term 
+
+0
+
+line no. 10: rel_expression : simple_expression 
+
+0
+
+line no. 10: logic_expression : rel_expression 
+
+0
+
+line no. 10: expression : logic_expression 
+
+0
+
+line no. 10: statement : RETURN expression SEMICOLON
+
+return 0;
+
+line no. 10: statements : statements statement
+
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+
+line no. 11: compound_statement : LCURL statements RCURL
+
+{ 
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+}
+
+line no. 11: func_definition : type_specifier ID LPAREN RPAREN compound_statement
+
+intmain(){ 
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+}
+
+
+ScopeTable # 1
+0 -->  < var : ID >
+2 -->  < y : ID >
+line no. 11: unit: func_definition
+
+
+intmain(){ 
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+}
+
+line no. 11: program : program unit
+
+
+int y;
+
+int var(int a, int b){ 
+a = a+y*2;
+return a+b;
+}
+
+intmain(){ 
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+}
+
+line no. 11: start : program
+
+
+int y;
+
+int var(int a, int b){ 
+a = a+y*2;
+return a+b;
+}
+
+intmain(){ 
+float d;
+d = var(1, 2*3)+3.5*2;
+return 0;
+}
+
+
+ScopeTable # 1
+0 -->  < var : ID >
+2 -->  < y : ID >
+total lines: 11
+total errors encountered: 2
