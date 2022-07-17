@@ -9,17 +9,32 @@ extern FILE *yyin;
 extern int line_count;
 FILE* error_out;
 
+int function_start_line ;
+
 symbolTable table;
 
 int errCounter = 0, totalBuckets;
 string lastDeclaredType;
-list<symbolINfo*> l;
+vector<symbolINfo*> l;
+vector<symbolINfo*> d;
 
 
 void yyerror(string s)
 {	
-	cout<<endl<<endl<<"yerr"<<endl<<endl;
+	//cout<<endl<<endl<<"yerr"<<endl<<endl;
 	fprintf(error_out, "line no. %d: Error no. %d found\n%s\n", line_count, ++errCounter, s.c_str());
+}
+
+bool isEqualVec(vector<symbolINfo*> v1 ,vector<symbolINfo*> v2)
+{
+	for(int i=0;i<v1.size();i++)
+	{
+		if(v1[i]->getVariableType() != v2[i]->getVariableType())
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 
@@ -119,46 +134,66 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		$2->setReturnType($1->getVariableType());
+		//$2->setReturnType($1->getVariableType());
 		//cout << $2->getName() << " " << $2->returnType << endl;
 
 		string id = "ID";
 
 		if (!table.insert($2->getName(), id))
 		{
-			errCounter++;
-			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
 		}
+
+		symbolINfo *smbl = table.lookUP($2->getName());
+		smbl->setReturnType($1->getName());
+		smbl->isFunc = true;
+
+
+		// for(symbolINfo* s:l)
+		// {
+		// 	d.push_back(s);
+		// }
+		smbl->paramList = l;
+		l.clear();
+
 	}
 	| type_specifier ID LPAREN RPAREN SEMICOLON 
 	{
-			fprintf(logout, "Line no. %d: func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON\n\n", line_count);
-			
-			string id = "ID";
-			symbolINfo* Sym = new symbolINfo($2->getName(), id);
-			
-			// This Function Is Already Declared Once
-			if(!table.insert($2->getName(),id)){
-				fprintf(error_out, "Error at Line %d: Previous Declaration of Function \'%s\' Found\n\n", line_count, $2->getName().c_str());
-				errCounter++;
-			}
-			
-			string Line = $1->getName() + " " + $2->getName() + "();";
-			fprintf(logout, "%s\n\n", Line.c_str());
-			
-			$$  = new symbolINfo(Line, "function_declaration");
+		fprintf(logout,"line no. %d: func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON\n\n",line_count);
+		
+		string line = $1->getName() + $2->getName() + "( );";
+
+		$$ = new symbolINfo(line, "func_declaration");
+
+		fprintf(logout, "%s\n\n", $$->getName().c_str());
+
+		//$2->setReturnType($1->getVariableType());
+		//cout << $2->getName() << " " << $2->returnType << endl;
+
+		string id = "ID";
+
+		if (!table.insert($2->getName(), id))
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
+		}
+
+		symbolINfo *smbl = table.lookUP($2->getName());
+		smbl->setReturnType($1->getName());
+		smbl->isFunc = true;
 			
 	}
 	;
 		 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN {
-		table.enterScope();		
+		table.enterScope();	
+		function_start_line = line_count;	
 		for(symbolINfo* smbl:l)
 		{
 			// smbl->print();
 			if (!table.insert(smbl->getName(), "ID"))
 			{
-				cout<<"func"<<endl;
 				fprintf(error_out, "Error no. %d at line no. %d\nAlready Exists\n\n", ++errCounter, line_count);
 				fprintf(logout, "Error no. %d at line no. %d\nAlready Exists\n\n", errCounter, line_count);
 			}
@@ -182,8 +217,35 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		table.exitScope();
 
 		string id = "ID";
-		table.insert($2->getName(), id);
+
+
 		symbolINfo *s = table.lookUP($2->getName());
+
+		if(s!=NULL){ 
+			if(!s->isFunc)
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nMultiple Declaration\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nMultiple Declaration\n\n", errCounter, function_start_line);
+			}
+			else if(l.size()!=s->paramList.size())
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nTotal Argument Number mismatched\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nTotal Argument Number mismatched\n\n", errCounter, function_start_line);
+			}
+			else if(!isEqualVec(l,s->paramList))
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nType Mismatched\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nType Mismatched\n\n", errCounter, function_start_line);
+			}
+			else if(s->getReturnType()!=$1->getName())
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nReturn Type didn't match\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nReturn Type didn't match\n\n", errCounter, function_start_line);
+			}
+		}
+
+		table.insert($2->getName(), id);
+		s = table.lookUP($2->getName());
 		s->setReturnType($1->getName());
 
 		for(symbolINfo* smbl:l)
@@ -195,7 +257,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		table.printAllScopeTable();
 
 	}
-	| type_specifier ID LPAREN RPAREN {table.enterScope();} compound_statement 
+	| type_specifier ID LPAREN RPAREN {table.enterScope();  function_start_line = line_count;} compound_statement 
 	{
 		fprintf(logout,"line no. %d: func_definition : type_specifier ID LPAREN RPAREN compound_statement\n\n",line_count);
 	
@@ -205,14 +267,31 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
 		$2->setReturnType($1->getVariableType()) ;
 		//cout << $2->getName() << " " << $2->returnType << endl;		
 
-		table.insert($2->getName(), "ID");
-
-		symbolINfo* s = table.lookUP($2->getName());
-		s->setReturnType($1->getName());
-
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
 		table.exitScope();
+
+		string id = "ID";
+
+		symbolINfo *s = table.lookUP($2->getName());
+
+		if(s!=NULL){ 
+			if(!s->isFunc)
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nMultiple Declaration\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nMultiple Declaration\n\n", errCounter, function_start_line);
+			}
+			else if(s->getReturnType()!=$1->getName())
+			{
+				fprintf(error_out, "Error no. %d at line no. %d\nReturn Type didn't match\n\n", ++errCounter, function_start_line);
+				fprintf(logout, "Error no. %d at line no. %d\nReturn Type didn't match\n\n", errCounter, function_start_line);
+			}
+		}
+
+		table.insert($2->getName(), id);
+		s = table.lookUP($2->getName());
+		s->setReturnType($1->getName());
+
 		table.printAllScopeTable();
 	}
  	;				
@@ -705,7 +784,12 @@ simple_expression : term
 
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		if($1->getVariableType() == "int" && $3->getVariableType() == "int")
+		if($1->getVariableType() == "void" || $3->getVariableType() == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVoid function used in expression\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVoid function used in expression\n\n", errCounter, line_count);
+		}
+		else if($1->getVariableType() == "int" && $3->getVariableType() == "int")
 		{
 			$$->setVariableType("int") ;
 		}
@@ -730,7 +814,32 @@ term : unary_expression
 
 		fprintf(logout, "%s\n\n", $$->getName().c_str());
 
-		if($1->getVariableType() == "int" && $3->getVariableType() == "int")
+		
+		// cout<< $2->getName()<<endl;
+		bool zero = false;
+    	regex exp("0*(.0+)?");
+
+    	if(regex_match($3->getName(),exp))
+    	{
+        	zero = true;
+    	}
+
+		if($2->getName()=="%" && zero)
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nModulus by zero\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nModulus by zero\n\n", errCounter, line_count);
+		}
+		else if($2->getName()=="/" && zero)
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nDivide by zero\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nDivide by zero\n\n", errCounter, line_count);
+		}
+		else if($1->getVariableType() == "void" || $3->getVariableType() == "void")
+		{
+			fprintf(error_out, "Error no. %d at line no. %d\nVoid function used in expression\n\n", ++errCounter, line_count);
+			fprintf(logout, "Error no. %d at line no. %d\nVoid function used in expression\n\n", errCounter, line_count);
+		}
+		else if($1->getVariableType() == "int" && $3->getVariableType() == "int")
 		{
 			$$->setVariableType("int") ;
 		}
@@ -787,14 +896,14 @@ factor : variable
 
 		symbolINfo *temp = table.lookUP($1->getName());
 
-		cout<<l.size()<<" "<<endl;
+		//cout<<l.size()<<" "<<endl;
 		// cout<<"hello world";
 		//temp->print();
 		// cout<<"hello world";
 
 		if(temp == NULL)
 		{
-			cout<<"hello world";
+			//cout<<"hello world";
 			fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Function\n\n", ++errCounter, line_count);
 			fprintf(logout, "Error no. %d at line no. %d\nUndeclared Function\n\n", errCounter, line_count);
 		}
@@ -816,8 +925,11 @@ factor : variable
 					symbolINfo *s = table.lookUP(smbl->getName());
 					if(s==NULL)
 					{
-						fprintf(error_out, "Error no. %d at line no. %d\nUndeclared Variable\n\n", ++errCounter, line_count);
-						fprintf(logout, "Error no. %d at line no. %d\nUndeclared Variable\n\n", errCounter, line_count);
+						if(temp->paramList[i]->getVariableType()!= smbl->getVariableType())
+						{
+							fprintf(error_out, "Error no. %d at line no. %d\nType mistmatched\n\n", ++errCounter, line_count);
+							fprintf(logout, "Error no. %d at line no. %d\nType mistmatched\n\n", errCounter, line_count);
+						}
 					}
 					else {
 						if(temp->paramList[i]->isArray != s->isArray)
@@ -827,11 +939,11 @@ factor : variable
 						}
 						else if(temp->paramList[i]->getVariableType()!=s->getVariableType())
 						{
-							fprintf(error_out, "Error no. %d at line no. %d\nType Mismatch\n\n", ++errCounter, line_count);
-							fprintf(logout, "Error no. %d at line no. %d\nType Mismatch\n\n", errCounter, line_count);
+							fprintf(error_out, "Error no. %d at line no. %d\nType Mismatched\n\n", ++errCounter, line_count);
+							fprintf(logout, "Error no. %d at line no. %d\nType Mismatched\n\n", errCounter, line_count);
 						}
-						i++;
 					}
+					i++;
 				}
 			}
 		}

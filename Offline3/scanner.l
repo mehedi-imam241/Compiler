@@ -21,7 +21,7 @@ int comment_start_line;
 string str ;
 string temp;
 extern int errCounter;
-
+extern YYSTYPE yylval;
 
 
 

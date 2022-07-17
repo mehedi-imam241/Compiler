@@ -10,7 +10,7 @@ private:
     string name, type,retType,variableType;
 public:
 
-    bool isArray;
+    bool isArray,isFunc;
     vector<symbolINfo*>paramList;
 
     symbolINfo *next;
@@ -20,6 +20,7 @@ public:
         this->type = type;
         next = nullptr;
         isArray = false;
+        isFunc = false;
         paramList = {};
     }
 
