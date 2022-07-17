@@ -27,7 +27,7 @@ public:
             cur = temp;
             counter = 1;
         }
-        cout << "New ScopeTable with id " << (cur->getID()) << " created" << endl;
+        //cout << "New ScopeTable with id " << (cur->getID()) << " created" << endl;
         size++;
     }
 
@@ -42,8 +42,8 @@ public:
             counter = cur->getCounter() + 1;
             scopeTable *temp = cur;
             cur = cur->parent;
-            cout << "ScopeTable with id " << temp->getID() << " is removed" << endl;
-            cout << "Destroying the ScopeTable" << endl;
+            //cout << "ScopeTable with id " << temp->getID() << " is removed" << endl;
+            //cout << "Destroying the ScopeTable" << endl;
             delete temp;
             return true;
         }
@@ -88,7 +88,7 @@ public:
     {
         if(!cur) 
         {
-            cout<< "Scope table empty"<<endl;
+            //cout<< "Scope table empty"<<endl;
             return;
         }
         cur->print();

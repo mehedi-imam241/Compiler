@@ -63,7 +63,7 @@ public:
         pair<int,symbolINfo*> s = table[hash].search(name);
         if(s.first!=-1)
         {
-            cout << "Found in ScopeTable# " << getID() << " at position " << hash << ", " << s.first << endl;
+            //cout << "Found in ScopeTable# " << getID() << " at position " << hash << ", " << s.first << endl;
             return s.second;
         }
         else {
@@ -78,13 +78,13 @@ public:
         int pos = table[hash].remove(name);
         if (pos != -1)
         {
-            cout << "Found in ScopeTable# " << getID() << " at position " << hash << ", " << pos << endl;
-            cout << "Deleted Entry " << hash << ", " << pos << " from current Scopetable" << endl;
+            //cout << "Found in ScopeTable# " << getID() << " at position " << hash << ", " << pos << endl;
+            //cout << "Deleted Entry " << hash << ", " << pos << " from current Scopetable" << endl;
             return true;
         }
         else
         {
-            cout << "Entry name " << name << " not found" << endl;
+            //cout << "Entry name " << name << " not found" << endl;
             return false;
         }
     }

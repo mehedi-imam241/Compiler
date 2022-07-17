@@ -1,3 +1,7 @@
-int a(int p, int q){
-    p = p/q;
+int func(){
+	
+}
+int main(){
+	int a,b;
+	func(a, b);
 }

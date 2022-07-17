@@ -1,3 +1,0 @@
-Error no. 1 at line no. 2
-Assignment Error
-

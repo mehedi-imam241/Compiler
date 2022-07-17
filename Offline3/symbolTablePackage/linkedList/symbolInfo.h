@@ -8,14 +8,18 @@ class symbolINfo
 {
 private:
     string name, type,retType,variableType;
-
 public:
+
+    bool isArray;
+    vector<symbolINfo*>paramList;
+
     symbolINfo *next;
     symbolINfo(string name, string type)
     {
         this->name = name;
         this->type = type;
         next = nullptr;
+        isArray = false;
     }
 
     string getName()
@@ -50,6 +54,10 @@ public:
     void setReturnType(string retType)
     {
         this->retType = retType;
+    }
+    void print()
+    {
+        cout<<endl<<endl<<name<<" "<<type<<" "<<variableType<<" "<<retType<<endl<<endl;
     }
 };
 
