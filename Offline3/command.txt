@@ -1,0 +1,1 @@
+del logout.txt error.txt & bison -d parser.y & flex scanner.l & g++ lex.yy.c parser.tab.c & a.exe input.c logout.txt error.txt & del lex.yy.c parser.tab.c parser.tab.h a.exe 

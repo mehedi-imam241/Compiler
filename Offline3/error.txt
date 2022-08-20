@@ -1,0 +1,69 @@
+Error no. 1 at line no. 20
+a Already Declared
+
+Error no. 2 at line no. 24
+Return Type didn't match in function foo3
+
+Error no. 3 at line no. 28
+Multiple Declaration of z
+
+Error no. 4 at line no. 32
+Total Argument Number mismatched in function var
+
+Error no. 5 at line no. 42
+Variable type can't be void
+
+Error no. 6 at line no. 43
+a Already Exists
+
+Error no. 7 at line no. 43
+c Already Declared
+
+Error no. 8 at line no. 45
+Type mistmatched
+
+Error no. 9 at line no. 45
+Type mistmatched
+
+Error no. 10 at line no. 48
+Type Mismatched
+
+Error no. 11 at line no. 48
+Type Mismatch
+
+Error no. 12 at line no. 49
+Too few arguments
+
+Error no. 13 at line no. 51
+variable not declared	k
+
+Error no. 14 at line no. 52
+b is not an array
+
+Error no. 15 at line no. 53
+Array indexing error c[2.5]
+
+Error no. 16 at line no. 54
+Void function used in expression 5*foo4(7)
+
+Error no. 17 at line no. 56
+Type mistmatched
+
+Error no. 18 at line no. 57
+Type mistmatched
+
+Error no. 19 at line no. 57
+Assignment Error
+
+Error no. 20 at line no. 59
+Modulus by zero
+
+Error no. 21 at line no. 59
+Assignment Error
+
+Error no. 22 at line no. 62
+Undeclared Function
+
+Error no. 23 at line no. 62
+Assignment Error
+
