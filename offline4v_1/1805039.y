@@ -1,26 +1,16 @@
 %{
-#include "S1705058_SymbolTable.h"
+#include "SymbolTable.h"
 #include "optimizeCode.cpp"
+#include "variableIdentity.cpp"
 
 using namespace std;
-
-struct VariableIdentity{
-	string Name;
-	string Size;
-	
-	VariableIdentity(){}
-	VariableIdentity(string name, string size){
-		Name = name;
-		Size = size;
-	}
-};
 
 int yyparse(void);
 int yylex(void);
 
 string TypeSpecifier = ""; // Necessary For storing type_specifier 
 string ReturnStatementType = ""; // Necessary for matching return type and definiton
-struct VariableIdentity ReturnExp;
+class VariableIdentity ReturnExp;
 int LabelCount = 0;
 int TempCount = 0;
 bool ReturnCalled = false;
@@ -49,7 +39,7 @@ string NewLabel(){
 }
 
 string NewTemp(){
-	struct VariableIdentity Temp;
+	class VariableIdentity Temp;
 	Temp.Name = "T" + to_string(++TempCount);
 	Temp.Size = "0";
 	VariablesUsed.push_back(Temp);
@@ -123,22 +113,33 @@ void printUtil()
 			fprintf(Assembly, "%s", assemblyPrint.c_str());
 }
 
+void printErr(string s, int lineCount)
+{
+	string printstr = "Error at Line %d: "+s;
+	fprintf(error_out, printstr.c_str(), lineCount);
+	fprintf(Log, printstr.c_str(), lineCount);
+	errCounter++;
+}
+
 %}
 
 %union{
-	SymbolInfo* Symbol;
+	SymbolInfo* smbl;
 }
 
-%token IF ELSE FOR WHILE INT FLOAT DOUBLE CHAR RETURN VOID PRINTLN DO BREAK SWITCH CASE DEFAULT CONTINUE INCOP DECOP ASSIGNOP NOT SEMICOLON COMMA LPAREN RPAREN LCURL RCURL LTHIRD RTHIRD CONST_CHAR
-%token<Symbol>ADDOP
-%token<Symbol>MULOP
-%token<Symbol>RELOP
-%token<Symbol>LOGICOP
-%token<Symbol>CONST_INT
-%token<Symbol>CONST_FLOAT
-%token<Symbol>ID
+%token IF ELSE FOR WHILE INT FLOAT DOUBLE CHAR RETURN VOID PRINTLN DO
+%token SWITCH CASE DEFAULT CONTINUE INCOP DECOP ASSIGNOP NOT SEMICOLON 
+%token COMMA LPAREN RPAREN LCURL RCURL LTHIRD RTHIRD CONST_CHAR BREAK 
 
-%type<Symbol>start program unit var_declaration func_declaration func_definition type_specifier parameter_list factor variable declaration_list argument_list arguments logic_expression expression compound_statement statement rel_expression simple_expression term unary_expression expression_statement statements
+%token<smbl>ADDOP MULOP RELOP LOGICOP CONST_INT CONST_FLOAT ID
+
+%type<smbl>start program unit var_declaration func_declaration 
+%type<smbl>func_definition type_specifier parameter_list factor
+%type<smbl>variable declaration_list argument_list arguments 
+%type<smbl>logic_expression expression compound_statement statement
+%type<smbl>rel_expression simple_expression term unary_expression
+%type<smbl>expression_statement statements
+
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 
@@ -149,13 +150,11 @@ start : program
 	{
 		fprintf(Log, "Line no. %d: start : program\n\n", line_count);
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		$$ = $1;
+
 		if(errCounter == 0){
-			//Start Printing Assembly
-			
-			//Stack Size And Model
+
 			fprintf(Assembly, ".MODEL SMALL\n\n.STACK 100H\n\n.DATA\n");
-			// Data Segment
+
 			fprintf(Assembly, "    ADDRESS DW ?\n");
 			for(int Counter=0; Counter<VariablesUsed.size(); Counter++){
 				if(VariablesUsed[Counter].Size == "0"){
@@ -166,14 +165,9 @@ start : program
 				}
 			}
 			
-			//CODE Segment
 			fprintf(Assembly, "\n.CODE\n");
-
-
 			printUtil();
-			
 
-			//Print The Rest of the codes
 			fprintf(Assembly, "%s", $1->GetCode().c_str());
 			fprintf(Assembly, "    END MAIN");
 		}
@@ -185,16 +179,14 @@ program : program unit
 		fprintf(Log, "Line no. %d: program : program unit\n\n", line_count);
 		$1->SetSymbolName($1->GetSymbolName() + "\n" + $2->GetSymbolName());
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		$$=$1;
 		$$->SetCode($1->GetCode()+$2->GetCode());
 	}
 	| unit
 	{
 		fprintf(Log, "Line no. %d: program : unit\n\n", line_count);
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		SymbolInfo* Prog = new SymbolInfo($1->GetSymbolName(), "program");
-		Prog->SetCode($1->GetCode());
-		$$ = Prog;
+		$$ = new SymbolInfo($1->GetSymbolName(), "program");
+		$$->SetCode($1->GetCode());
 	}
 	;
 	
@@ -202,25 +194,22 @@ unit : var_declaration
 	{
 		fprintf(Log, "Line no. %d: unit : var_declaration\n\n", line_count);
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		SymbolInfo* Sym = new SymbolInfo($1->GetSymbolName(), "unit");
-		Sym->SetCode($1->GetCode());
-		$$ = Sym;
+		$$ = new SymbolInfo($1->GetSymbolName(), "unit");
+		$$->SetCode($1->GetCode());
 	}
     | func_declaration
     {
 		fprintf(Log, "Line no. %d: unit : func_declaration\n\n", line_count);
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		SymbolInfo* Sym = new SymbolInfo($1->GetSymbolName(), "unit");
-		Sym->SetCode($1->GetCode());
-		$$ = Sym;
+		$$= new SymbolInfo($1->GetSymbolName(), "unit");
+		$$->SetCode($1->GetCode());
 	}
     | func_definition
     {
 		fprintf(Log, "Line no. %d: unit : func_definition\n\n", line_count);
 		fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-		SymbolInfo* Sym = new SymbolInfo($1->GetSymbolName(), "unit");
-		Sym->SetCode($1->GetCode());
-		$$ = Sym;
+		$$ = new SymbolInfo($1->GetSymbolName(), "unit");
+		$$->SetCode($1->GetCode());
 	}
     ;
      
@@ -230,11 +219,8 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 			
 			SymbolInfo* Sym = new SymbolInfo($2->GetSymbolName(), "ID");
 			
-			// This Function Is Already Declared Once
 			if(table->LookUp($2->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Previous Declaration of Function \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Previous Declaration of Function \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Previous Declaration of Function \'"+$2->GetSymbolName()+"\' Found\n\n",line_count);
 			}
 			// Unique name
 			else{
@@ -247,8 +233,8 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 				table->Insert(Sym);
 			}
 			
-			string Line = "";
-			Line += $1->GetSymbolType() + " " + $2->GetSymbolName() + "(";
+			string Line = $1->GetSymbolType() + " " + $2->GetSymbolName() + "(";
+
 			
 			for(int Counter = 0; Counter < $4->ParamList.size(); Counter++){
 				if($4->ParamList[Counter]->GetIdentity() == "Type_Only")	Line += $4->ParamList[Counter]->GetSymbolType();
@@ -275,11 +261,8 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 			
 			SymbolInfo* Sym = new SymbolInfo($2->GetSymbolName(), "ID");
 			
-			// This Function Is Already Declared Once
 			if(table->LookUp($2->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Previous Declaration of Function \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Previous Declaration of Function \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Previous Declaration of Function \'"+$2->GetSymbolName()+"\' Found\n\n",line_count);
 			}else{
 				Sym->SetReturnType($1->GetSymbolType());
 				Sym->SetIdentity("func_declaration");
@@ -289,8 +272,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 			string Line = "";
 			Line += $1->GetSymbolType() + " " + $2->GetSymbolName() + "();";
 			
-			SymbolInfo* sym = new SymbolInfo(Line, "function_declaration");
-			$$ = sym;
+			$$ = new SymbolInfo(Line, "function_declaration");
 			
 			fprintf(Log, "%s\n\n", Line.c_str());
 			
@@ -298,9 +280,8 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 		}
 		;
 
-// Mid Action Rules are used for specific tasks
 func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
-			// compound_statement, which has an LCURL, will need a new scope first
+
 			table->EnterScope(Log);
 			
 			// Since parameter_list is used, the parameters stored in Parameters vector will populate the new scope
@@ -311,20 +292,18 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 				// Variable already exists in current scope
 				
 				if(table->LookUpCurrentScope(Parameters[Counter]->GetSymbolName())){
-					fprintf(error_out, "Error at Line %d: Multiple Declaration of \'%s\'\n\n", line_count, Parameters[Counter]->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Multiple Declaration of \'%s\'\n\n", line_count, Parameters[Counter]->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Multiple Declaration of \'"+Parameters[Counter]->GetSymbolName()+"\'\n\n",line_count);
 				}else{
 					table->Insert(ParamToInsert);
 					
 					//For Assembly
-					struct VariableIdentity Temp;
+					class VariableIdentity Temp;
 					Temp.Name = Parameters[Counter]->GetSymbolName() + table->GetCurrentScopeID();
 					Temp.Size = "0";
 					VariablesUsed.push_back(Temp);
 				}
 			}	
-			//Parameters.clear();	
+
 		} statements RCURL
 		{
 			fprintf(Log, "Line no. %d: func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement\n\n", line_count);
@@ -404,15 +383,11 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 			if(Declared){
 				// If the name is not of a DECLARATION, then its an error
 				if(Declared->GetIdentity() != "func_declaration"){
-					fprintf(error_out, "Error at Line %d: Previous Definition of \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Previous Definition of \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Previous Definition of \'"+$2->GetSymbolName()+"\' Found\n\n",line_count);
 				}
 				// DECLARATION found, now to see if parameter counts match
 				else if(Declared->ParamList.size() != $4->ParamList.size()){
-					fprintf(error_out, "Error at Line %d: Parameter Count Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Parameter Count Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Parameter Count Of \'"+$2->GetSymbolName()+"\' Does Not Match With The Declaration\n\n",line_count);
 				}
 				// Everything in order, now to see if parameter list match
 				else{
@@ -434,17 +409,13 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 							Declared->SetImplementationID(table->GetCurrentScopeID());
 						}
 						else{
-							fprintf(error_out, "Error at Line %d: Return Type Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-							fprintf(Log, "Error at Line %d: Return Type Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-							errCounter++;
+							printErr("Return Type Of \'"+$2->GetSymbolName()+"\' Does Not Match With The Declaration\n\n",line_count);
 							ReturnTypeErrorFound = true;
 						}
 					}
 					// Parameters Did Not Match
 					else{
-						fprintf(error_out, "Error at Line %d: Parameters Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-						fprintf(Log, "Error at Line %d: Parameters Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-						errCounter++;
+						printErr("Parameters Of \'"+$2->GetSymbolName()+"\' Does Not Match With The Declaration\n\n",line_count);
 					}
 					
 				}
@@ -467,26 +438,20 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 				// Match return type with definition
 				// A void function with return statement of other type
 				if($1->GetSymbolType() == "void" && ReturnStatementType != ""){
-					fprintf(error_out, "Error at Line %d: Return With Value in Function Returning Void\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Return With Value in Function Returning Void\n\n", line_count);
-					errCounter++;
+					printErr("Return With Value in Function Returning Void\n\n",line_count);
 				}
 				// A non void function without a return type
 				else if($1->GetSymbolType() != "void" && ReturnStatementType == ""){
 					if($2->GetSymbolName() == "main"){}
 					else{
-						fprintf(error_out, "Error at Line %d: Return With No Value in Function Returning Non-Void\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Return With No Value in Function Returning Non-Void\n\n", line_count);
-						errCounter++;
+						printErr("Return With No Value in Function Returning Non-Void\n\n", line_count);
 					}
 				}
 				// Mismatch in return type except void
 				else if($1->GetSymbolType() != "void" && $1->GetSymbolType() != ReturnStatementType){
 					if($1->GetSymbolType() == "float" && ReturnStatementType == "int"){}
 					else{
-						fprintf(error_out, "Error at Line %d: Incompatible Return Type\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Incompatible Return Type\n\n", line_count);
-						errCounter++;
+						printErr("Incompatible Return Type\n\n", line_count);
 					}
 				}
 				ReturnStatementType = "";
@@ -512,9 +477,8 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 			Lines += "}";
 			fprintf(Log, "%s\n\n", Lines.c_str());
 			
-			SymbolInfo* FuncDef = new SymbolInfo(Lines, "func_definition");
-			$$ = FuncDef;
-			
+			$$ = new SymbolInfo(Lines, "func_definition");
+
 			//Generate Assembly Code
 			string code = "";
 			if($2->GetSymbolName() == "main"){
@@ -565,15 +529,11 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 			if(Declared){
 				// If the name is not of a DECLARATION, then its an error
 				if(Declared->GetIdentity() != "func_declaration"){
-					fprintf(error_out, "Error at Line %d: Previous Definition of \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Previous Definition of \'%s\' Found\n\n", line_count, $2->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Previous Definition of \'"+$2->GetSymbolName()+"\' Found\n\n", line_count);
 				}
 				// DECLARATION found, the function can't have any parameters declared before
 				else if(Declared->ParamList.size() > 0){
-					fprintf(error_out, "Error at Line %d: Parameter Count Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Parameter Count Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Parameter Count Of \'"+$2->GetSymbolName()+"\' Does Not Match With The Declaration\n\n", line_count);
 				}
 				// Everything is fine
 				else{
@@ -584,9 +544,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 						Declared->SetImplementationID(table->GetCurrentScopeID());
 					}
 					else{
-						fprintf(error_out, "Error at Line %d: Return Type Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-						fprintf(Log, "Error at Line %d: Return Type Of \'%s\' Does Not Match With The Declaration\n\n", line_count, $2->GetSymbolName().c_str());
-						errCounter++;
+						printErr("Return type Of \'"+$2->GetSymbolName()+"\' Does Not Match With The Declaration\n\n", line_count);
 						ReturnTypeErrorFound = true;
 					}
 				}
@@ -605,26 +563,20 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN LCURL{
 				// Match return type with definition
 				// A void function with return statement of other type
 				if($1->GetSymbolType() == "void" && ReturnStatementType != ""){
-					fprintf(error_out, "Error at Line %d: Return With Value in Function Returning Void\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Return With Value in Function Returning Void\n\n", line_count);
-					errCounter++;
+					printErr("Return With Value in Function Returning Void\n\n", line_count);
 				}
 				// A non void function without a return type
 				else if($1->GetSymbolType() != "void" && ReturnStatementType == ""){
 					if($2->GetSymbolName() == "main"){}
 					else{
-						fprintf(error_out, "Error at Line %d: Return With No Value in Function Returning Non-Void\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Return With No Value in Function Returning Non-Void\n\n", line_count);
-						errCounter++;
+						printErr("Return With No Value in Function Returning Non-Void\n\n", line_count);
 					}
 				}
 				// Mismatch in return type
 				else if($1->GetSymbolType() != "void" && $1->GetSymbolType() != ReturnStatementType){
 					if($1->GetSymbolType() == "float" && ReturnStatementType == "int"){}
 					else{
-						fprintf(error_out, "Error at Line %d: Incompatible Return Type\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Incompatible Return Type\n\n", line_count);
-						errCounter++;
+						printErr("Incompatible Return Type\n\n", line_count);
 					}
 				}
 				ReturnStatementType = "";
@@ -772,9 +724,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 			
 			// Void Variable is not allowed
 			if($1->GetSymbolType() == "void"){
-				fprintf(error_out, "Error at Line %d: Variable or Field Declared Void\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Variable or Field Declared Void\n\n", line_count);
-				errCounter++;
+				printErr("Variable or Field Declared Void\n\n", line_count);
 			}
 			fprintf(Log, "%s\n\n", Lines.c_str());
 			$2->ParamList.clear();
@@ -825,16 +775,14 @@ declaration_list : declaration_list COMMA ID
 			}
 			$$->ParamList.push_back(Temp);
 			
-			struct VariableIdentity VarID;
+			class VariableIdentity VarID;
 			VarID.Name = $3->GetSymbolName() + table->GetCurrentScopeID();
 			VarID.Size = "0";
 			VariablesUsed.push_back(VarID);
 			
 			// Variable Already Declared
 			if(table->LookUpCurrentScope($3->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $3->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $3->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Multiple Declaration of \'"+$3->GetSymbolName()+"\' In Current Scope\n\n", line_count);
 			}
 			else if(TypeSpecifier != "void"){ 
 				table->Insert(Temp);
@@ -863,22 +811,19 @@ declaration_list : declaration_list COMMA ID
 			Temp->SetVariableSize(ArraySize);
 			$$->ParamList.push_back(Temp);
 			
-			struct VariableIdentity VarID;
+			class VariableIdentity VarID;
 			VarID.Name = $3->GetSymbolName() + table->GetCurrentScopeID();
 			VarID.Size = $5->GetSymbolName();
 			VariablesUsed.push_back(VarID);
 			
 			// Array of 0 or negative size
 			if(ArraySize < 1){
-				fprintf(error_out, "Error at Line %d: Cannot allocate an array of constant size %s\n\n", line_count, $5->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Cannot allocate an array of constant size %s\n\n", line_count, $5->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Cannot allocate an array of constant size "+$5->GetSymbolName()+"\n\n", line_count);
+
 			}
 			// Variable Already Declared
 			else if(table->LookUpCurrentScope($3->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $3->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $3->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Multiple Declaration of \'"+$3->GetSymbolName()+"\' In Current Scope\n\n", line_count);
 			}
 			else if(TypeSpecifier != "void"){
 				if(TypeSpecifier == "int") Temp->CreateIntegerArray();
@@ -916,16 +861,14 @@ declaration_list : declaration_list COMMA ID
 			}
 			$$->ParamList.push_back(Temp);
 			
-			struct VariableIdentity VarID;
+			class VariableIdentity VarID;
 			VarID.Name = $1->GetSymbolName() + table->GetCurrentScopeID();
 			VarID.Size = "0";
 			VariablesUsed.push_back(VarID);
 			
 			// Variable Already Declared
 			if(table->LookUpCurrentScope($1->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Multiple Declaration of \'"+$1->GetSymbolName()+"\' In Current Scope\n\n", line_count);
 			}
 			else if(TypeSpecifier != "void"){
 				table->Insert(Temp);
@@ -948,22 +891,18 @@ declaration_list : declaration_list COMMA ID
 			Temp->SetVariableSize(ArraySize);
 			$$->ParamList.push_back(Temp);
 			
-			struct VariableIdentity VarID;
+			class VariableIdentity VarID;
 			VarID.Name = $1->GetSymbolName() + table->GetCurrentScopeID();
 			VarID.Size = $3->GetSymbolName();
 			VariablesUsed.push_back(VarID);
 			
 			// Array of 0 or negative size
 			if(ArraySize < 1){
-				fprintf(error_out, "Error at Line %d: Cannot allocate an array of constant size %s\n\n", line_count, $3->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Cannot allocate an array of constant size %s\n\n", line_count, $3->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Cannot allocate an array of constant size "+$3->GetSymbolName()+"\n\n", line_count);
 			}
 			// Variable Already Declared
 			else if(table->LookUpCurrentScope($1->GetSymbolName())){
-				fprintf(error_out, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Multiple Declaration of \'%s\' In Current Scope\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Multiple Declaration of \'"+$1->GetSymbolName()+"\' In Current Scope\n\n", line_count);
 			}
 			else if(TypeSpecifier != "void"){
 				if(TypeSpecifier == "int") Temp->CreateIntegerArray();
@@ -1176,7 +1115,7 @@ statement : var_declaration
 				$$->SetCode($2->GetCode());
 			}
 			ReturnStatementType = $2->GetVariableType();
-			struct VariableIdentity ReturnIdentity;
+			class VariableIdentity ReturnIdentity;
 			ReturnIdentity.Name = $2->GetAssemblySymbol();
 			if($2->GetIdentity() == "AccessArray"){
 				ReturnIdentity.Size = to_string($2->GetArrayAccessVariable());
@@ -1216,9 +1155,7 @@ variable : ID
 			// This nonterminal is used as operand or argument, not for declaration. So, it must be declared before.
 			SymbolInfo* Temp = table->LookUp($1->GetSymbolName());
 			if(!Temp){
-				fprintf(error_out, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("\'"+$1->GetSymbolName()+"\' Undeclared\n\n", line_count);
 				$$->SetVariableType("error");
 			}else{
 				$$->SetVariableType(Temp->GetVariableType());
@@ -1243,16 +1180,12 @@ variable : ID
 			// Is It Declared?
 			SymbolInfo* Temp = table->LookUp($1->GetSymbolName());
 			if(!Temp){
-				fprintf(error_out, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("\'"+$1->GetSymbolName()+"\' Undeclared\n\n", line_count);
 				ArrayVariable->SetVariableType("error");
 			}
 			// Is It An Array?
 			else if(Temp->GetVariableSize() < 1){
-				fprintf(error_out, "Error at Line %d: Subscripted Value(\'%s\') Is Not An Array\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Subscripted Value(\'%s\') Is Not An Array\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Subscripted Value(\'"+$1->GetSymbolName()+"\') Is Not An Array\n\n", line_count);
 				ArrayVariable->SetVariableType("error");
 			}
 			// Index is undefined variable
@@ -1262,9 +1195,8 @@ variable : ID
 			}
 			// Is The Index An Integer?
 			else if($3->GetVariableType() != "int"){
-				fprintf(error_out, "Error at Line %d: Array Subscript Is Not An Integer\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Array Subscript Is Not An Integer\n\n", line_count);
-				errCounter++;
+
+				printErr("Array Subscript Is Not An Integer\n\n", line_count);
 				ArrayVariable->SetVariableType("error");
 			}
 			else{
@@ -1276,16 +1208,12 @@ variable : ID
 					Index = atoi($3->GetSymbolName().c_str());
 				}
 				if(Index >= Temp->GetVariableSize()){
-					fprintf(error_out, "Error at Line %d: Array Index Out Of Bound\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Array Index Out Of Bound\n\n", line_count);
-					errCounter++;
+					printErr("Array Index Out Of Bound\n\n", line_count);
 					ArrayVariable->SetVariableType("error");
 				}
 				// Is the index positive?
 				else if(Index < 0){
-					fprintf(error_out, "Error at Line %d: Array Index Cannot Be Less Than Zero\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Array Index Cannot Be Less Than Zero\n\n", line_count);
-					errCounter++;
+					printErr("Array Index Cannot Be Less Than Zero\n\n", line_count);
 					ArrayVariable->SetVariableType("error");
 				}
 				else{
@@ -1343,33 +1271,25 @@ expression : logic_expression
 				Temp->RetVal = $3->RetVal;
 				// Is the variable an array (int a[10];) used like a non array (a = 5;)?
 				if($1->GetIdentity() != "AccessArray" && Temp->GetIdentity() == "array"){
-					fprintf(error_out, "Error at Line %d: Assignment to Expression with Array Type\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Assignment to Expression with Array Type\n\n", line_count);
-					errCounter++;
+					printErr("Assignment to Expression with Array Type\n\n", line_count);
 					NoErrorFlag = false;
 				}
 				// Is the variable a non-array (int a;) used like an array (a[5] = 1)?
 				else if($1->GetArrayAccessVariable() >= 0 && Temp->GetIdentity() != "array"){
-					fprintf(error_out, "Error at Line %d: Subscripted Value(\'%s\') Is Not An Array\n\n", line_count, $1->GetSymbolName().c_str());
-					fprintf(Log, "Error at Line %d: Subscripted Value(\'%s\') Is Not An Array\n\n", line_count, $1->GetSymbolName().c_str());
-					errCounter++;
+					printErr("Subscripted Value(\'"+$1->GetSymbolName()+"\') Is Not An Array\n\n", line_count);
 					NoErrorFlag = false;
 				}
 				// RVALUE is array type
 				else if(Temp2 && Temp2->GetIdentity() == "array" && $3->GetIdentity() != "AccessArray"){
 					if($3->GetIdentity() != "Special"){
-						fprintf(error_out, "Error at Line %d: Assignment to Expression with Array Type\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Assignment to Expression with Array Type\n\n", line_count);
-						errCounter++;
+						printErr("Assignment to Expression with Array Type\n\n", line_count);
 						NoErrorFlag = false;
 					}
 				}
 				else if($3->GetVariableType() != "error" && Temp->GetVariableType() != $3->GetVariableType()){
 					if(Temp->GetVariableType() == "float" && $3->GetVariableType() == "int"){}
 					else if($3->GetVariableType() != "void"){
-						fprintf(error_out, "Error at Line %d: Type Mismatch\n\n", line_count);
-						fprintf(Log, "Error at Line %d: Type Mismatch\n\n", line_count);
-						errCounter++;
+						printErr("Type Mismatch\n\n", line_count);
 						NoErrorFlag = false;
 					}
 				}
@@ -1493,9 +1413,7 @@ expression : logic_expression
 			}
 			
 			if($3->GetVariableType() == "void"){
-				fprintf(error_out, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				errCounter++;
+				printErr("Void Value Not Ignored As It Ought To Be\n\n", line_count);
 			}
 			if(!ReturnCalled){
 				$$->SetCode(code);
@@ -1507,7 +1425,7 @@ logic_expression : rel_expression
 		{
 			fprintf(Log, "Line no. %d: logic_expression : rel_expression\n\n", line_count);
 			fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-			$$ = $1;
+			//$$ = $1;
 			$$->SetSymbolType("logic_expression");
 		}
 		| rel_expression LOGICOP rel_expression 
@@ -1521,9 +1439,7 @@ logic_expression : rel_expression
 			Rel->SetVariableType("int");
 			
 			if($1->GetVariableType() == "void" || $3->GetVariableType() == "void"){
-				fprintf(error_out, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				errCounter++;
+				printErr("Void Value Not Ignored As It Ought To Be\n\n", line_count);
 			}
 			else{
 				int Value;
@@ -1635,9 +1551,7 @@ rel_expression	: simple_expression
 			Rel->SetVariableType("int");
 			
 			if($1->GetVariableType() == "void" || $3->GetVariableType() == "void"){
-				fprintf(error_out, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				errCounter++;
+				printErr("Void Value Not Ignored As It Ought To Be\n\n", line_count);
 			}
 			else{
 				int Value;
@@ -1783,7 +1697,7 @@ simple_expression : term
 		{
 			fprintf(Log, "Line no. %d: simple_expression : term\n\n", line_count);
 			fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-			$$ = $1;
+			// $$ = $1;
 			$$->SetSymbolType("simple_expression");
 		}
 		| simple_expression ADDOP term 
@@ -1804,9 +1718,7 @@ simple_expression : term
 				}
 			}
 			else if($1->GetVariableType() == "void" || $3->GetVariableType() == "void"){
-				fprintf(error_out, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				fprintf(Log, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-				errCounter++;
+				printErr("Void Value Not Ignored As It Ought To Be\n\n", line_count);
 				Simp->SetVariableType("error");
 			}
 			else if($1->GetVariableType() == "error"){
@@ -1884,7 +1796,7 @@ term :	unary_expression
 		{
 			fprintf(Log, "Line no. %d: term : unary_expression\n\n", line_count);
 			fprintf(Log, "%s\n\n", $1->GetSymbolName().c_str());
-			$$ = $1;
+			//$$ = $1;
 			$$->SetSymbolType("term");
 		}
      	|  term MULOP unary_expression
@@ -1902,16 +1814,12 @@ term :	unary_expression
 			if($2->GetSymbolName() == "%"){
 				Sym->SetVariableType("int");
 				if($1->GetVariableType() != "int" || $3->GetVariableType() != "int"){
-					fprintf(error_out, "Error at Line %d: Invalid Operands To Binary (Have \'%s\' and \'%s\')\n\n", line_count, $1->GetVariableType().c_str(), $3->GetVariableType().c_str());
-					fprintf(Log, "Error at Line %d: Invalid Operands To Binary (Have \'%s\' and \'%s\')\n\n", line_count, $1->GetVariableType().c_str(), $3->GetVariableType().c_str());
-					errCounter++;
+					printErr("Invalid Operands To Binary (Have \'"+$1->GetVariableType()+"\' and \'"+$3->GetVariableType()+"\')\n\n",line_count);
 				}else{
 					if($3->GetIdentity() == "Variable"){
 						int Op = $3->IValue;
 						if(Op==0 && !$3->RetVal){
-							fprintf(error_out, "Error at Line %d: Modulus By Zero\n\n", line_count);
-							fprintf(Log, "Error at Line %d: Modulus By Zero\n\n", line_count);
-							errCounter++;
+							printErr("Modulus By Zero\n\n", line_count);
 						}
 					}
 					else if($3->GetIdentity() == "AccessArray"){
@@ -1920,9 +1828,7 @@ term :	unary_expression
 					else{
 						int Op = atoi($3->GetSymbolName().c_str());
 						if(Op == 0 && !$3->RetVal){
-							fprintf(error_out, "Error at Line %d: Modulus By Zero\n\n", line_count);
-							fprintf(Log, "Error at Line %d: Modulus By Zero\n\n", line_count);
-							errCounter++;
+							printErr("Modulus By Zero\n\n", line_count);
 						}
 					}
 				}
@@ -1959,9 +1865,7 @@ term :	unary_expression
 					}
 					else if($2->GetSymbolName() == "/"){
 						if(Second == 0 && !$3->RetVal){
-							fprintf(error_out, "Error at Line %d: Division By Zero\n\n", line_count);
-							fprintf(Log, "Error at Line %d: Division By Zero\n\n", line_count);
-							errCounter++;
+							printErr("Division By Zero\n\n", line_count);
 						}
 						else{
 							if($1->RetVal || $3->RetVal){
@@ -1974,9 +1878,7 @@ term :	unary_expression
 				}
 				// No void operations allowed
 				else if($1->GetVariableType() == "void" || $3->GetVariableType() == "void"){
-					fprintf(error_out, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-					fprintf(Log, "Error at Line %d: Void Value Not Ignored As It Ought To Be\n\n", line_count);
-					errCounter++;
+					printErr("Void Value Not Ignored As It Ought To Be\n\n", line_count);
 					Sym->SetVariableType("error");
 				}
 				else if($1->GetVariableType() == "error"){
@@ -2072,8 +1974,6 @@ unary_expression : ADDOP unary_expression
 			string Expr = $1->GetSymbolName() + $2->GetSymbolName();
 			fprintf(Log, "%s\n\n", Expr.c_str());
 			
-			//SymbolInfo* Exp = new SymbolInfo(Expr, "unary_expression");
-			//Exp->SetVariableType($2->GetVariableType());
 			$$ = $2;
 			$$->SetSymbolName(Expr);
 			$$->SetSymbolType("unary_expression");
@@ -2227,29 +2127,21 @@ factor	: variable
 			}else{
 				// Function not found
 				$$->SetVariableType("error");
-				fprintf(error_out, "Error at Line %d: Undeclared Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Undeclared Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Undeclared Function \'"+$1->GetSymbolName()+"\'\n\n", line_count);
 			}
 			
 			// Function not defined, or the name does not belong to a function
 			if(Fun && (Fun->GetIdentity() != "function_definition" && Fun->GetIdentity() != "func_declaration")){
-				fprintf(error_out, "Error at Line %d: Undefined Reference to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Undefined Reference to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Undefined Reference to Function \'"+$1->GetSymbolName()+"\'\n\n", line_count);
 				$$->SetVariableType("error");
 			}
 			// Argument counts do not match
 			else if(Fun && Fun->ParamList.size() > $3->ParamList.size()){
-				fprintf(error_out, "Error at Line %d: Too Few Arguments to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Too Few Arguments to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Too Few Arguments to Function \'"+$1->GetSymbolName()+"\'\n\n", line_count);
 				$$->SetVariableType("error");
 			}
 			else if(Fun && Fun->ParamList.size() < $3->ParamList.size()){
-				fprintf(error_out, "Error at Line %d: Too Many Arguments to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				fprintf(Log, "Error at Line %d: Too Many Arguments to Function \'%s\'\n\n", line_count, $1->GetSymbolName().c_str());
-				errCounter++;
+				printErr("Too Many Arguments to Function \'"+$1->GetSymbolName()+"\'\n\n", line_count);
 				$$->SetVariableType("error");
 			}
 			// Function defined, argument counts match
@@ -2267,41 +2159,32 @@ factor	: variable
 								code += "    MOV " + Fun->ParamList[Counter]->GetSymbolName() + Fun->GetImplementationID() + ", AX\n";
 							}
 							else{
-								fprintf(error_out, "Error at Line %d: Incompatible Type for Argument %d of \'%s\'\n\n", line_count, Counter + 1, $1->GetSymbolName().c_str());
-								fprintf(Log, "Error at Line %d: Incompatible Type for Argument %d of \'%s\'\n\n", line_count, Counter + 1, $1->GetSymbolName().c_str());
-								errCounter++;
+								printErr("Incompatible Type for Argument"+to_string(Counter + 1)+"of \'"+$1->GetSymbolName()+"\'\n\n", line_count);
 								$$->SetVariableType("error");
 								break;
 							}
 						}
 						else{
-							//code += "    MOV AX, " + $3->ParamList[Counter]->GetSymbolName() + table->GetCurrentScopeID() + "\n";
-							//code += "    MOV " + Fun->ParamList[Counter]->GetSymbolName() + Fun->GetImplementationID() + ", AX\n";
 							code += "    PUSH " + $3->ParamList[Counter]->GetSymbolName() + table->GetCurrentScopeID() + "\n";
 						}
 					}
 					
 					// In Case its a value, not a variable. In this case, as defined, it will have no special identity, unlike defined variables, who have "Variable" identity
-					// If the identity is "Variable", that means the variable is not declared, since it is not in the Symbol Table
+					// If the identity is "Variable", that means the variable is not declared, since it is not in the smbl Table
 					else if($3->ParamList[Counter]->GetIdentity() == "Variable"){
 						if($3->ParamList[Counter]->GetVariableType() == "error"){}
 						else{
-							fprintf(error_out, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $3->ParamList[Counter]->GetSymbolName().c_str());
-							fprintf(Log, "Error at Line %d: \'%s\' Undeclared\n\n", line_count, $3->ParamList[Counter]->GetSymbolName().c_str());
-							errCounter++;
+							printErr("\'"+$3->ParamList[Counter]->GetSymbolName()+"\' Undeclared\n\n", line_count);
 							$$->SetVariableType("error");
 							break;
 						}
 					}
 					else if($3->ParamList[Counter]->GetVariableType() != Fun->ParamList[Counter]->GetVariableType()){
 						if(Fun->ParamList[Counter]->GetVariableType() == "float" && $3->ParamList[Counter]->GetVariableType() == "int"){
-							//code += "    MOV " + Fun->ParamList[Counter]->GetSymbolName() + Fun->GetImplementationID() + ", " + $3->ParamList[Counter]->GetSymbolName() + "\n";
 							code += "    PUSH" + $3->ParamList[Counter]->GetSymbolName() + "\n";
 						}
 						else{
-							fprintf(error_out, "Error at Line %d: Incompatible Type for Argument %d of \'%s\'\n\n", line_count, Counter + 1, $1->GetSymbolName().c_str());
-							fprintf(Log, "Error at Line %d: Incompatible Type for Argument %d of \'%s\'\n\n", line_count, Counter + 1, $1->GetSymbolName().c_str());
-							errCounter++;
+							printErr("Incompatible Type for Argument" +to_string(Counter+1)+ "of \'"+$1->GetSymbolName()+"\'\n\n",line_count);
 							$$->SetVariableType("error");
 							break;
 						}
@@ -2442,7 +2325,6 @@ factor	: variable
 			SymbolInfo* Temp = table->LookUp($1->GetSymbolName());
 			string code = "";
 			if(Temp){
-				////printf("%s\n", $1->GetSymbolName().c_str());
 				string TempVar = NewTemp();
 				
 				if(Temp->GetVariableType() == "int"){
@@ -2496,14 +2378,12 @@ argument_list : arguments
 				}
 			}
 			fprintf(Log, "\n\n");
-			$$ = $1;
 			$$->SetSymbolType("argument_list");
 		}
 		|
 		{
 			fprintf(Log, "Line no. %d: argument_list : \n\n", line_count);
-			SymbolInfo* ArgNew = new SymbolInfo("", "argument_list");
-			$$ = ArgNew;
+			$$ = new SymbolInfo("", "argument_list");
 		}
  	    ;
 	
@@ -2570,8 +2450,7 @@ int main(int argc,char *argv[])
 
 	yyparse();
 	
-	// Print the stats
-	fprintf(Log, "Symbol Table:\n\n");
+	fprintf(Log, "smbl Table:\n\n");
 	table->PrintAllScopes(Log);
 	fprintf(Log, "\n\n");
 	fprintf(Log, "Total Lines: %d\n\n", line_count-1);
@@ -2585,13 +2464,10 @@ int main(int argc,char *argv[])
 	Assembly = fopen(argv[4], "r");
 	
 	if(errCounter == 0){
-		//OptimizeCode(GetAssemblyCode());
 		optimizeCode();
 	}
 	
 	fclose(Assembly);
 	fclose(Optimized);
-	
-	return 0;
 }
 

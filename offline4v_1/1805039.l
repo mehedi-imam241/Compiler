@@ -2,7 +2,7 @@
 
 %{
 #include<bits/stdc++.h>
-#include "S1705058_SymbolInfo.h"
+#include "SymbolInfo.h"
 #include "1805039.tab.h"
 using namespace std;
 
@@ -142,13 +142,13 @@ NEWLINE \n
 		
 [+-]  {
 			SymbolInfo *s= new  SymbolInfo(yytext, "ADDOP");
-			yylval.Symbol = s;
+			yylval.smbl = s;
 			return ADDOP;
 }
 
 [*/%]  {
 			SymbolInfo *s= new  SymbolInfo(yytext, "MULOP");
-			yylval.Symbol = s;
+			yylval.smbl = s;
 			return MULOP;
 }
 
@@ -167,7 +167,7 @@ NEWLINE \n
 "==" | 
 "!=" {
 		SymbolInfo *s= new  SymbolInfo(yytext, "RELOP");
-		yylval.Symbol = s;
+		yylval.smbl = s;
 		return RELOP;
 }
 
@@ -178,7 +178,7 @@ NEWLINE \n
 "&&" |
 "||" {
 		SymbolInfo *s= new  SymbolInfo(yytext, "LOGICOP");
-		yylval.Symbol = s;
+		yylval.smbl = s;
 		return LOGICOP;
 } 
 
@@ -220,20 +220,20 @@ NEWLINE \n
 
 [0-9]+ {
 	SymbolInfo *s = new SymbolInfo(yytext, "CONST_INT");
-	yylval.Symbol = s;
+	yylval.smbl = s;
 	return CONST_INT;
 }
 
 ([0-9]+([.][0-9]*)?(E[+-]?[0-9]+)?|[.][0-9]+(E[+-]?[0-9]+)?) {
 	SymbolInfo *s = new SymbolInfo(yytext, "CONST_FLOAT");
-	yylval.Symbol = s;
+	yylval.smbl = s;
 	return CONST_FLOAT;
 }
 
 [_a-zA-Z][_a-zA-Z0-9]* {
 
 	SymbolInfo *s = new SymbolInfo(yytext, "ID");
-	yylval.Symbol = s;
+	yylval.smbl = s;
 	return ID;
 
 }
@@ -247,14 +247,14 @@ NEWLINE \n
 			str.clear();
 			str.push_back(yytext[1]);
 			SymbolInfo *temp = new SymbolInfo(str, "CONST_CHAR");
-			yylval.Symbol = temp;
+			yylval.smbl = temp;
 			return CONST_CHAR;
 }
 \'\\[n|t|a|f|r|b|v|0|\\|\"]\' {
 			str.clear();
 			str.push_back(returnChar(yytext));
 			SymbolInfo *temp = new SymbolInfo(str, "CONST_CHAR");
-			yylval.Symbol = temp;
+			yylval.smbl = temp;
 			return CONST_CHAR;
 }
 
